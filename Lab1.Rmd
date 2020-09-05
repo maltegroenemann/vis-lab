@@ -1,0 +1,91 @@
+---
+title: "Visualisation - Lab 1 - Group A7"
+author: "Malte Grönemann and Varshith Konda"
+date: "02/09/2020"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(ggplot2)
+library(shiny)
+library(knitr)
+```
+
+# Assignment 1
+
+```{r assignment1}
+include_graphics("tree.png")
+```
+
+# Assignment 2
+
+## 2.1) Reading the Data
+
+```{r data}
+SENIC <- read.table("SENIC.txt")
+```
+
+## 2.2) Function
+
+```{r function}
+assignment2 <- function(x){
+  q1 <- quantile(x, probs = .25)
+  q3 <- quantile(x, probs = .75)
+  iqr <- q3 - q1
+  
+  outliers_l <- x < q1 - 1.5 * iqr
+  outliers_u <- x > q3 + 1.5 * iqr
+  outliers <- ifelse(outliers_l | outliers_u, TRUE, FALSE)
+  
+  which(outliers)
+}
+```
+
+## 2.3) Density Plot
+
+```{r density1}
+ggplot() +
+  geom_density(data = SENIC,
+               aes(x = V3)) +
+  geom_point(data = SENIC[assignment2(SENIC$V3), ],
+             aes(x = V3, y = 0), 
+             shape = 5) +
+  labs(x = "Infection Risk")
+```
+
+## 2.4) All Densities
+
+There are two variables that are categorical in the dataset: Medical School Affiliation (V7) and Region (V8). Infection Risk (V3) is excluded as well since it has been shown above and the Identification Number (V1) is removed as well.
+
+```{r density2}
+
+SENIC_metr <- SENIC[ , -c(1, 3, 7:8)]
+n_vars_metr <- 1:ncol(SENIC_metr)
+
+all_densities <- function(x){
+  if(length(assignment2(x)) > 0){
+  ggplot() +
+      geom_density(aes(x = x)) +
+      geom_point(aes(x = x[assignment2(x)], 
+                 y = 0), 
+             shape = 5) +
+      xlab(colnames())
+  }
+  
+  else{
+    ggplot() +
+      geom_density(aes(x = x))
+  }
+}
+
+for(c in n_vars_metr){
+  
+  var <- SENIC_metr[ , c]
+  
+  assign(paste("density", c, sep = "_"), all_densities(var))
+}
+
+```
