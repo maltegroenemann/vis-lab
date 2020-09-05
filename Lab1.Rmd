@@ -10,25 +10,39 @@ runtime: shiny
 knitr::opts_chunk$set(echo = TRUE)
 
 library(ggplot2)
+library(gridExtra)
 library(shiny)
 library(knitr)
 ```
 
 # Assignment 1
 
-```{r assignment1}
+The following image shows our adjusted version of the tree graph.
+
+```{r assignment1, echo=FALSE}
 include_graphics("tree.png")
 ```
 
 # Assignment 2
 
-## 2.1) Reading the Data
+These data were obtained as part of the Study on the Efficacy of Nosocomial Infection Control (SENIC) to determine whether infection surveillance and control programs have reduced the rates of nosocomial (hospital-acquired) infection in US hospitals. This data set consists of a random sample of 113 hospitals
+
+## 2.1
+
+The data contain the following variables: a hospital id, the average length of stay of patients in days, the average age of the patients, the risk of infection in the hospital, the ratio of number of cultures performed to number of patients without signs or
+symptoms of hospital-acquired infection, ratio of number of X-rays performed to number of patients without signs or symptoms of pneumonia, average number of beds in the hospital during study period, wether the hospital is affiliated with a medical school, geographic region, average number of patients during the study period, average number of full-time equivalent registered and licensed practical
+nurses during study period and percent of 35 potential facilities and services that are provided by the
+hospital.
 
 ```{r data}
 SENIC <- read.table("SENIC.txt")
+
+colnames(SENIC) <- c("id", "length_stay", "age", "infection_risk", "culturing_ratio", "xray_ratio", "n_beds", "ms_affiliation", "region", "n_patients", "n_nurses", "services")
 ```
 
-## 2.2) Function
+## 2.2
+
+Writing a function that returns the indices of outliers.
 
 ```{r function}
 assignment2 <- function(x){
@@ -44,48 +58,94 @@ assignment2 <- function(x){
 }
 ```
 
-## 2.3) Density Plot
+## 2.3
+
+Plot the density of the infection risk and indicate outliers found by th function from 2.2.
 
 ```{r density1}
 ggplot() +
   geom_density(data = SENIC,
-               aes(x = V3)) +
-  geom_point(data = SENIC[assignment2(SENIC$V3), ],
-             aes(x = V3, y = 0), 
-             shape = 5) +
-  labs(x = "Infection Risk")
+               aes(x = infection_risk)) +
+  geom_point(data = SENIC[assignment2(SENIC$infection_risk), ],
+             aes(x = infection_risk, y = 0), 
+             shape = 5)
 ```
 
-## 2.4) All Densities
+## 2.4
 
-There are two variables that are categorical in the dataset: Medical School Affiliation (V7) and Region (V8). Infection Risk (V3) is excluded as well since it has been shown above and the Identification Number (V1) is removed as well.
+Showing the same graph as in 2.3 but for all metric variables of the dataset. There are two variables that are categorical and are threfore not considerd: medical school affiliation and region. The id is excluded as well.
 
 ```{r density2}
-
-SENIC_metr <- SENIC[ , -c(1, 3, 7:8)]
-n_vars_metr <- 1:ncol(SENIC_metr)
-
-all_densities <- function(x){
-  if(length(assignment2(x)) > 0){
+all_densities <- function(var, var_name, bw_adj){
+  if(length(assignment2(var)) > 0){
   ggplot() +
-      geom_density(aes(x = x)) +
-      geom_point(aes(x = x[assignment2(x)], 
+      geom_density(aes(x = var), adjust = bw_adj) +
+      geom_point(aes(x = var[assignment2(var)], 
                  y = 0), 
              shape = 5) +
-      xlab(colnames())
+      xlab(var_name)
   }
-  
   else{
     ggplot() +
-      geom_density(aes(x = x))
+      geom_density(aes(x = var), adjust = bw_adj) +
+      xlab(var_name)
   }
 }
 
+SENIC_metr <- SENIC[ , -c(1, 8:9)]
+SENIC_metr_names <- colnames(SENIC_metr)
+n_vars_metr <- 1:ncol(SENIC_metr)
+bw_adj <- 1
+
 for(c in n_vars_metr){
-  
   var <- SENIC_metr[ , c]
-  
-  assign(paste("density", c, sep = "_"), all_densities(var))
+  var_name <- SENIC_metr_names[c]
+  assign(paste("density", c, sep = "_"), all_densities(var, var_name, bw_adj))
 }
 
+grid.arrange(density_1, density_2, density_3, density_4, density_5, density_6, density_7, density_8, density_9)
 ```
+
+## 2.5
+
+The following scatter plot shows the dependence of infection risk on the number of
+nurses where the points are colored by the average number of beds.
+
+## 2.6
+
+Here we present an interactive version of 2.3.
+
+## 2.7
+
+This section contains an interactive histogram of infection risk.
+
+## 2.8
+
+And finally, we present 2.4 as a Shiny App that also includes a variable bandwith parameter and where the respective variables to show can be selected by checkboxes.
+
+```{r shinyapp}
+interface <- fluidPage(
+  sliderInput(inputId = "bw_adj",
+              label = "Bandwidth Adjustment",
+              min = 0.1, max = 2, value = 1),
+  #checkboxGroupInput(inputId = "var",
+   #                  label = "Variables",
+    #                 choiceValues = paste0("SENIC_metr$", SENIC_metr_names[1]),
+     #                choiceNames = SENIC_metr_names[1],
+      #               inline = TRUE),
+  plotOutput("densities")
+)
+
+server <- function(input, output){
+  var <- SENIC_metr$infection_risk
+ output$densities <- renderPlot({
+     all_densities(var, "", input$bw_adj)
+   }) 
+}
+
+shinyApp(ui = interface, server = server)
+```
+
+# Contributions
+
+Assignment 1 and the parts 5 to 7 show the solutions found by Varshith Konda. The remaining parts in Assignment 2, 1 to 4 and 8, were implemented by Malte Grönemann.
