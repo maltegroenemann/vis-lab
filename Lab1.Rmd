@@ -20,7 +20,7 @@ library(knitr)
 The following image shows our adjusted version of the tree graph.
 
 ```{r assignment1, echo=FALSE}
-include_graphics("tree.png")
+include_graphics("tree.png") # need to be in the same directory as .Rmd
 ```
 
 # Assignment 2
@@ -35,7 +35,7 @@ nurses during study period and percent of 35 potential facilities and services t
 hospital.
 
 ```{r data}
-SENIC <- read.table("SENIC.txt")
+SENIC <- read.table("SENIC.txt") # need to be in the same directory as .Rmd
 
 colnames(SENIC) <- c("id", "length_stay", "age", "infection_risk", "culturing_ratio", "xray_ratio", "n_beds", "ms_affiliation", "region", "n_patients", "n_nurses", "services")
 ```
@@ -46,6 +46,7 @@ Writing a function that returns the indices of outliers.
 
 ```{r function}
 assignment2 <- function(x){
+  
   q1 <- quantile(x, probs = .25)
   q3 <- quantile(x, probs = .75)
   iqr <- q3 - q1
@@ -73,18 +74,20 @@ ggplot() +
 
 ## 2.4
 
-Showing the same graph as in 2.3 but for all metric variables of the dataset. There are two variables that are categorical and are threfore not considerd: medical school affiliation and region. The id is excluded as well.
+Here we show in principle the same graph as in 2.3 but for all metric variables of the dataset. There are two variables that are categorical and are threfore not considerd: medical school affiliation and region. The id is excluded as well.
 
 ```{r density2}
 all_densities <- function(var, var_name, bw_adj){
+  
   if(length(assignment2(var)) > 0){
-  ggplot() +
+    ggplot() +
       geom_density(aes(x = var), adjust = bw_adj) +
       geom_point(aes(x = var[assignment2(var)], 
                  y = 0), 
              shape = 5) +
       xlab(var_name)
   }
+  
   else{
     ggplot() +
       geom_density(aes(x = var), adjust = bw_adj) +
@@ -100,6 +103,7 @@ bw_adj <- 1
 for(c in n_vars_metr){
   var <- SENIC_metr[ , c]
   var_name <- SENIC_metr_names[c]
+  
   assign(paste("density", c, sep = "_"), all_densities(var, var_name, bw_adj))
 }
 
@@ -121,29 +125,28 @@ This section contains an interactive histogram of infection risk.
 
 ## 2.8
 
-And finally, we present 2.4 as a Shiny App that also includes a variable bandwith parameter and where the respective variables to show can be selected by checkboxes.
+And finally, we present 2.4 as a ShinyApp where the respective variables can be individually selected. Also the bandwidth of the density estimation can be varied. But since the standard deviation of the kernel differs from variable to variable, we opted for an adjustment parameter instead of selecting a fixed bandwidth. This allows better comparisons between variables. The adjustment is just a multiplicator to the standard deviation of the kernel density.
 
 ```{r shinyapp}
 interface <- fluidPage(
   sliderInput(inputId = "bw_adj",
               label = "Bandwidth Adjustment",
               min = 0.1, max = 2, value = 1),
-  #checkboxGroupInput(inputId = "var",
-   #                  label = "Variables",
-    #                 choiceValues = paste0("SENIC_metr$", SENIC_metr_names[1]),
-     #                choiceNames = SENIC_metr_names[1],
-      #               inline = TRUE),
+  radioButtons(inputId = "var",
+                     label = "Variables",
+                     choiceValues = n_vars_metr,
+                     choiceNames = SENIC_metr_names,
+                     inline = TRUE),
   plotOutput("densities")
 )
 
 server <- function(input, output){
-  var <- SENIC_metr$infection_risk
  output$densities <- renderPlot({
-     all_densities(var, "", input$bw_adj)
-   }) 
+   all_densities(SENIC_metr[ , as.integer(input$var)], "", input$bw_adj)
+   })
 }
 
-shinyApp(ui = interface, server = server)
+shinyApp(ui = interface, server = server, options = list(height = 600))
 ```
 
 # Contributions
