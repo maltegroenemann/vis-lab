@@ -64,12 +64,13 @@ assignment2 <- function(x){
 Plot the density of the infection risk and indicate outliers found by th function from 2.2.
 
 ```{r density1}
-ggplot() +
+assignment3 <- ggplot() +
   geom_density(data = SENIC,
                aes(x = infection_risk)) +
   geom_point(data = SENIC[assignment2(SENIC$infection_risk), ],
              aes(x = infection_risk, y = 0), 
              shape = 5)
+assignment3
 ```
 
 ## 2.4
@@ -114,14 +115,30 @@ grid.arrange(density_1, density_2, density_3, density_4, density_5, density_6, d
 
 The following scatter plot shows the dependence of infection risk on the number of
 nurses where the points are colored by the average number of beds.
-
+```{r 2.5}
+ggplot(data=SENIC,aes(x=infection_risk,y=n_nurses,color = n_beds))+
+           geom_point()+
+            labs(x = "Infection risk", y= "Number of nurses")
+            
+```
 ## 2.6
 
 Here we present an interactive version of 2.3.
+```{r 2.6}
+ggplotly(
+  p = assignment3
+)
+```
 
 ## 2.7
 
 This section contains an interactive histogram of infection risk.
+
+```{r 2.7}
+plot_ly(senic_data, x = ~infection_risk,fill = ~n_nurses) %>%
+  add_histogram()%>%
+ q  
+```
 
 ## 2.8
 
