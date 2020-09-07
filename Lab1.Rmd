@@ -21,7 +21,7 @@ library(knitr)
 The following image shows our adjusted version of the tree graph.
 
 ```{r assignment1, echo=FALSE}
-include_graphics("tree_mod.png") # need to be in the same directory as .Rmd
+include_graphics("tree.png") # need to be in the same directory as .Rmd
 ```
 
 # Assignment 2
