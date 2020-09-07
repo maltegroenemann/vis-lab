@@ -10,6 +10,7 @@ runtime: shiny
 knitr::opts_chunk$set(echo = TRUE)
 
 library(ggplot2)
+library(plotly)
 library(gridExtra)
 library(shiny)
 library(knitr)
@@ -20,7 +21,7 @@ library(knitr)
 The following image shows our adjusted version of the tree graph.
 
 ```{r assignment1, echo=FALSE}
-include_graphics("tree.png") # need to be in the same directory as .Rmd
+include_graphics("tree_mod.png") # need to be in the same directory as .Rmd
 ```
 
 # Assignment 2
@@ -73,6 +74,8 @@ assignment3 <- ggplot() +
 assignment3
 ```
 
+From the graph can be inferred that most observations lie in the interval from 4 to 5 percent infection risk in the hospitals and the distribution is relatively symetrical. There are two outliers at the lower end at about 1 percent infection risk and three at the upper end at about 8 percent.
+
 ## 2.4
 
 Here we show in principle the same graph as in 2.3 but for all metric variables of the dataset. There are two variables that are categorical and are threfore not considerd: medical school affiliation and region. The id is excluded as well.
@@ -111,33 +114,48 @@ for(c in n_vars_metr){
 grid.arrange(density_1, density_2, density_3, density_4, density_5, density_6, density_7, density_8, density_9)
 ```
 
+The included variables are all unimodal and either fairly symetrical or positively skewed. The variable with the most number of outliers is the number of nurses.
+
 ## 2.5
 
 The following scatter plot shows the dependence of infection risk on the number of
 nurses where the points are colored by the average number of beds.
+
 ```{r 2.5}
-ggplot(data=SENIC,aes(x=infection_risk,y=n_nurses,color = n_beds))+
-           geom_point()+
-            labs(x = "Infection risk", y= "Number of nurses")
-            
+ggplot(SENIC) +
+  aes(x = infection_risk,
+      y=n_nurses,
+      color = n_beds) +
+  geom_point()
 ```
+
+The plot shows the relation between infetction risk and number of nurses in the hospital while points are colored by number of beds.
+
+The risk of using this color scheme is not being able to differentiate the relationship properly since color differentials are too small to be immediately recognised. 
+
+However, while there is unsurprisingly a strong positive relationship between number of beds and number of nurses, the patterns concerning the infection risks is less clear. There might be positive relations between both number of beds and nurses to the infection risk.
+
 ## 2.6
 
 Here we present an interactive version of 2.3.
+
 ```{r 2.6}
-ggplotly(
-  p = assignment3
-)
+ggplotly(p = assignment3)
 ```
+
+The added functionalities include being able to zoom into certain areas and to obtain precise values for the densities and outliers.
+
+
 
 ## 2.7
 
 This section contains an interactive histogram of infection risk.
 
-```{r 2.7}
-plot_ly(senic_data, x = ~infection_risk,fill = ~n_nurses) %>%
-  add_histogram()%>%
- q  
+```{r 2.7, warning=FALSE}
+plot_ly(SENIC, 
+        x = ~infection_risk,
+        fill = ~n_nurses) %>%
+  add_histogram()
 ```
 
 ## 2.8
@@ -165,6 +183,8 @@ server <- function(input, output){
 
 shinyApp(ui = interface, server = server, options = list(height = 600))
 ```
+
+When adjusting the bandwidth, lower bandwidth mean that the density function more closely resembles the observed data while larger values produce smoother densities. We already stated above that a fixed bandwidth is not useful for comparisons but the better smoothing bandwidths for comparisons are based on the standard deviation of the kernel density estimates. The main purpose of a density plot is to get an idea about the underlying distribution that generates these data. Since too small bandwidths create a lot of local minima and maxima that distract from the overall pattern while too large values become more and more detached from the data, we would argue for an adjustment factor of 1.5.
 
 # Contributions
 
