@@ -152,10 +152,20 @@ The added functionalities include being able to zoom into certain areas and to o
 This section contains an interactive histogram of infection risk.
 
 ```{r 2.7, warning=FALSE}
-plot_ly(SENIC, 
-        x = ~infection_risk,
-        fill = ~n_nurses) %>%
-  add_histogram()
+
+ q1 <- quantile(SENIC$V3,probs = 0.25)
+  q3 <- quantile(SENIC$V3,probs = 0.75)
+  below_value <- SENIC$V3 < q1 - 1.5 * (q3-q1)
+  upper_value <- SENIC$V3> q3 + 1.5 * (q3 -q1)
+  outliers <- ifelse(below_value | upper_value , TRUE , FALSE)
+  
+
+graph5 <- SENIC%>% 
+  plot_ly( x = ~infection_rate,name = "infection rate") %>%
+  add_histogram(title = "histogram of infection rate")%>%
+  add_markers(data =  SENIC[assignment2(SENIC$V3),],y=0,name = "outliers")%>%
+  layout(title = "Infection rate density with outliers")
+  
 ```
 
 ## 2.8
