@@ -149,22 +149,19 @@ The added functionalities include being able to zoom into certain areas and to o
 
 ## 2.7
 
-This section contains an interactive histogram of infection risk.
+This section contains an interactive histogram of infection risk and outliers by using plotly library.Outliers are calculated by assignment2 function. 
 
 ```{r 2.7, warning=FALSE}
 
- q1 <- quantile(SENIC$V3,probs = 0.25)
-  q3 <- quantile(SENIC$V3,probs = 0.75)
-  below_value <- SENIC$V3 < q1 - 1.5 * (q3-q1)
-  upper_value <- SENIC$V3> q3 + 1.5 * (q3 -q1)
-  outliers <- ifelse(below_value | upper_value , TRUE , FALSE)
-  
 
-graph5 <- SENIC%>% 
-  plot_ly( x = ~infection_rate,name = "infection rate") %>%
-  add_histogram(title = "histogram of infection rate")%>%
-  add_markers(data =  SENIC[assignment2(SENIC$V3),],y=0,name = "outliers")%>%
-  layout(title = "Infection rate density with outliers")
+
+SENIC%>% 
+  plot_ly( x = ~infection_risk,name = "infection rate") %>%
+   add_histogram(title = "histogram of infection rate")%>%
+     add_markers(data =  SENIC[assignment2(SENIC$infection_risk),],y=0,name = "outliers")%>%
+        layout(title = "Infection rate density with outliers")
+
+  
   
 ```
 
