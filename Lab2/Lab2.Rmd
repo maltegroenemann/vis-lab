@@ -1,0 +1,226 @@
+---
+title: "Visualisation - Lab 2 - Group A7"
+author: "Malte Grönemann and Varshith Konda"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(ggplot2)
+library(plotly)
+
+olive <- read.csv("olive.csv")
+```
+
+# Assignment 1
+
+## Introduction
+
+The data contains the information about different contents of olive oils hailing from different regions in Italy, describing about different regions, areas and different acids present in them.
+
+## 1.1)
+
+```{r 1.1, warning=FALSE}
+graph1 <- ggplot(data = olive,
+                 aes(x = palmitic,
+                     y= oleic,
+                     color=linoleic)) +
+                geom_point() +
+                labs(title = "Dependency of palmitic on oleic",
+                     x = "palmitic",
+                     y = "oleic")
+graph1
+```
+
+The graph depicts the dependence of palmitic on Oleic where colored by Linoleic.
+
+```{r 1.2, warning=FALSE}
+    
+Linoleic_interval_data <- cut_interval(olive$linoleic,4)
+    
+graph2 <- ggplot(data = olive,
+                 aes(x = palmitic, 
+                     y = oleic,
+                     color = Linoleic_interval_data)) +
+                  geom_point()
+graph2
+```
+
+
+
+## 1.2)
+
+```{r 2.1, warning=FALSE}
+graph3 <- ggplot(data = olive,
+                 aes(x = palmitic,
+                     y = oleic,
+                     color = Linoleic_interval_data)) +
+              geom_point()
+graph3
+
+graph4 <-  ggplot(data = olive,
+                  aes(x = palmitic,
+                      y = oleic,
+                      size = Linoleic_interval_data)) +
+                  geom_point()
+graph4
+
+graph5 <-  ggplot(data = olive,
+                  aes(x = palmitic,
+                      y = oleic,
+                      geom_spoke(Linoleic_interval_data))) +
+                  geom_point()
+graph5
+```
+
+
+
+## 1.3
+
+```{r 3.1, warning = FALSE}
+graph6 <- ggplot(data = olive,
+                 aes(x = oleic,
+                     y = eicosenoic,
+                     color = Region)) +
+                  geom_point()
+graph6
+```
+
+## Converting numerical data into categorical data 
+
+```{r conversion}
+region_categorial <- cut(olive$Region, 
+                         breaks = c(0,1,2,3),
+                         labels = c("North","South","Sardinia islands"))
+
+graph7 <- ggplot(data = olive,
+                 aes(x = oleic,
+                     y = eicosenoic,
+                     color = region_categorial)) +
+                  geom_point()
+graph7
+```
+
+
+## 1.4)
+
+```{r 4.1}
+linoleic_class_data <- cut_interval(olive$linoleic, 3)
+palmitic_class_data <- cut_interval(olive$palmitic, 3)
+palmitoleic_class_data <- cut_interval(olive$palmitoleic, 3)
+
+graph8 <- ggplot(data = olive,
+                 aes(x = oleic,
+                     y = eicosenoic,
+                     color = linoleic_class_data,
+                     shape = palmitic_class_data,
+                     size = as.numeric(palmitoleic_class_data))) +
+                  geom_point()
+graph8
+```
+
+## 1.5)
+
+````{r question5}
+graph9 <- ggplot(data = olive,
+                 aes(x=oleic,
+                     y= eicosenoic,
+                     color =Region,
+                     shape = palmitic_class_data,
+                     size = as.numeric(palmitoleic_class_data))) +
+                  geom_point()
+graph9
+``` 
+
+## 1.6)
+
+```{r question 6, warning=FALSE}
+graph10 <- plot_ly(data = olive, 
+                   type='pie',
+                   labels = ~Area,
+                   values = olive,
+                   showlegend = FALSE,
+                   showlabels = FALSE)
+graph10
+```
+
+## 1.7)
+
+```{r question7}
+graph11 <- ggplot(data = olive,
+                  aes(x = linoleic,
+                      y = eicosenoic)) +
+                  geom_point() +
+                  geom_density_2d()
+graph11
+```
+
+# Assignment 2
+
+## 2.1)
+The data set baseball-2016.xlsx contains information about the scores of baseball teams in USA in 2016, such as: Games won, Games Lost, Runs peer game, At bats, Runs, Hits, Doubles, Triples, Home runs, Runs batted in, Bases stolen, Time caught stealing, Bases on Balls, Strikeouts, Hits/At Bats, On Base Percentage, Slugging percentage, On base+Slugging, Total bases, Double plays grounded into, Times hit by pitch, Sacrifice hits, Sacrifice flies, Intentional base on balls, and Runners Left On Base.
+
+Load the file to R and answer whether it is reasonable to scale these data in order to perform
+a multidimensional scaling (MDS).
+
+```{r data2}
+library(readxl)
+baseball <- read_excel("baseball-2016.xlsx")
+baseball_2 <- baseball[ , -(1:2)] # removing team name and league
+
+anyNA(baseball_2)
+```
+
+The data is generally appropriate for multidimensional scaling (MDS) but some variables are count data. Therefore it is more appropriate to focus on order than distance which can be achieved by using non-metric MDS. Before doing the procedure, we want to exclude the variables defining the teams, the team name and the league they play in. Fortunately, the dataset contains no missing values that could mess with the procedure.
+
+## 2.2)
+
+Write an R code that performs a non-metric MDS with Minkowski distance=2 of the data (numerical columns) into two dimensions. Visualize the resulting observations in Plotly as a scatter plot in which observations are colored by League. Does it seem to exist a difference between the leagues according to the plot? Which of the MDS components seem to provide the best differentiation between the Leagues? Which baseball teams seem to be outliers?
+
+```{r nmds, message=FALSE, warning=FALSE}
+library(MASS)
+library(plotly)
+
+d <- dist(baseball_2, 
+          method = "minkowski", 
+          p = 2) # power of the minkowski distance set to 2
+
+fit <- isoMDS(d, k = 2) # fitting a nmds for k = 2 dimensions
+
+baseball$x <- fit$points[ , 1]
+baseball$y <- fit$points[ , 2]
+
+plot_ly(data = baseball,
+       x = ~x,
+       y = ~y,
+       color = ~League,
+       colors = "Set1",
+       text = ~Team) %>%
+  add_text()
+```
+
+The plot shows no obvious pattern between the two leagues. The most remote outlier are the Boston Red Sox but the Milwaukee Brewers, Los Angeles Angels, San Diego Padres and Philadelphia Phillies can be classified as outliers as well.
+
+## 2.3)
+
+Use Plotly to create a Shepard plot for the MDS performed and comment about how successful the MDS was. Which observation pairs were hard for the MDS to map successfully?
+
+```{r shepard, message=FALSE}
+shepard <- as.data.frame(Shepard(d, fit$points))
+plot_ly(data = shepard,
+        x = ~x,
+        y = ~y,
+        type = "scatter")
+```
+
+The Shepard plot makes a quite good impression with the points giving the Minkowski distances and the distances after the NMDS constituing an overall monotonically increasing line over the whole range. However, there are some points closer to the origin of the plot that deviate negatively from the line.
+
+## 2.4)
+
+Produce series of scatterplots in which you plot the MDS variable that was the best in the differentiation between the leagues in step 2 against all other numerical variables of the data. Pick up two scatterplots that seem to show the strongest (positive or negative) connection between the variables and include them into your report. Find some information about these variables in Google – do they appear to be important in scoring the baseball teams? Provide some interpretation for the chosen MDS variable.
+
+# Contributions
+
+Assignment 1 was the primary responsibility of Varshith Konda while it was Malte Grönemanns on Assignment 2.
