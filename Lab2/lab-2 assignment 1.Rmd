@@ -1,0 +1,157 @@
+---
+title: "lab - 2 assignment 1"
+author: "konda varshith , malte groenemann"
+date: "12/09/2020"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(dplyr)
+library(ggplot2)
+library(plotly)
+```
+
+## Introduction
+
+The data contains the information about different contents of olive oils hailing from different regions in Italy ,Describing about different Regions , areas and different acids present in them.
+
+
+##  Loading the data 
+
+```{r loading the data }
+
+    olive <- read.csv("olive.csv")
+
+```
+
+
+
+## Question 1
+
+```{r 1.1,warning=FALSE}
+graph1 <- ggplot(data = olive,aes( x= palmitic, 
+                                   y= oleic,
+                                   color=linoleic))+
+          geom_point()+
+          labs(title ="Dependency of palmitic on oleic",x="palmitic",y="oleic")
+          graph1
+
+```
+The graph depicts the dependence of palmitic on Oleic where colored by Linoleic.
+
+```{r 1.2 ,warning=FALSE}
+    
+
+    Linoleic_interval_data <- cut_interval(olive$linoleic,4)
+    
+    graph2 <- ggplot(data = olive,aes( x= palmitic, 
+                                       y= oleic,
+                                       color=Linoleic_interval_data))+
+    geom_point()
+    
+    graph2
+
+```
+
+
+
+## Question 2 
+
+```{r 2.1,  warning=FALSE}
+
+
+    graph3 <- ggplot(data = olive,aes( x= palmitic,
+                                       y= oleic,
+                                       color=Linoleic_interval_data))+
+              geom_point()
+              
+              graph3
+
+graph4 <-  ggplot(data =olive,aes(x=palmitic,
+                                  y=oleic,
+                                  size=Linoleic_interval_data))+
+          geom_point()
+           graph4
+
+
+graph5 <-  ggplot(data = olive,aes(x=palmitic,
+                                   y=oleic,
+                                   geom_spoke(Linoleic_interval_data)))+
+    geom_point()
+graph5
+
+```
+
+
+
+## Question 3 
+
+```{r 2.3,warning = FALSE}
+graph6<- ggplot(data = olive,aes(x= oleic ,y= eicosenoic,
+                                 color = Region))+
+  geom_point()
+graph6
+```
+
+#converting numeric data into categorical data 
+
+```{r }
+region_categorial <- cut(olive$Region, breaks = c(0,1,2,3),labels = c("North","South","Sardinia islands"))
+
+graph7 <-  ggplot(data = olive,aes(x= oleic ,
+                                   y=eicosenoic,
+                                   color = region_categorial))+
+            geom_point()
+            graph7
+
+```
+
+
+##Question4 
+
+```{r}
+linoleic_class_data <- cut_interval(olive$linoleic,3)
+palmitic_class_data <- cut_interval(olive$palmitic,3)
+palmitoleic_class_data <- cut_interval(olive$palmitoleic,3)
+graph8 <-  ggplot(data = olive ,aes(x=oleic,y=eicosenoic,
+                                    color = linoleic_class_data,
+                                    shape =palmitic_class_data,
+                                    size = as.numeric(palmitoleic_class_data) ))+
+  geom_point()
+graph8
+
+```
+##Question 5 
+
+
+````{r question 5}
+
+graph9 <-  ggplot(data = olive,aes(x=oleic ,y= eicosenoic,color =Region,
+                                   shape = palmitic_class_data,
+                                   size = as.numeric(palmitoleic_class_data)))+
+  geom_point()
+graph9
+```
+
+
+
+##Question 6 
+```{r question 6}
+graph10 <- plot_ly(data = olive , type='pie',labels = ~olive$Area,values = olive,showlegend=FALSE,showlabels=FALSE)
+graph10
+
+```
+
+
+
+
+##question 7 
+```{r question 7 }
+graph11 <- ggplot(data = olive,aes(x=olive$linoleic,y= olive$eicosenoic))+
+  geom_point()+
+    geom_density_2d()
+graph11
+```
