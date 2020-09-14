@@ -201,8 +201,7 @@ graph10 <- plot_ly(data = olive,
                    labels = ~Area,
                    values = olive,
                    showlegend = FALSE,
-                   showlabels = FALSE,
-                   title= "1.10 | proportions of oil coming from diferent regions",
+                   showlabels = FALSE
                    )
 graph10
 ```
