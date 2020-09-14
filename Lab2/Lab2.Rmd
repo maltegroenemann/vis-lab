@@ -22,19 +22,27 @@ The data contains the information about different contents of olive oils hailing
 
 ## 1.1)
 
+Create a scatterplot in Ggplot2 that shows dependence of Palmitic on Oleic in which
+observations are colored by Linoleic. Create also a similar scatter plot in which you divide
+Linoleic variable into fours classes (use cut_interval() ) and map the discretized variable to
+color instead. How easy/difficult is it to analyze each of these plots? What kind of perception
+problem is demonstrated by this experiment?
+
+
+
 ```{r 1.1, warning=FALSE}
 graph1 <- ggplot(data = olive,
                  aes(x = palmitic,
                      y= oleic,
                      color=linoleic)) +
                 geom_point() +
-                labs(title = "Dependency of palmitic on oleic",
+                labs(title = "1.1 | Dependency of palmitic on oleic",
                      x = "palmitic",
                      y = "oleic")
 graph1
 ```
 
-The graph depicts the dependence of palmitic on Oleic where colored by Linoleic.
+
 
 ```{r 1.2, warning=FALSE}
     
@@ -44,53 +52,84 @@ graph2 <- ggplot(data = olive,
                  aes(x = palmitic, 
                      y = oleic,
                      color = Linoleic_interval_data)) +
-                  geom_point()
+                  geom_point()+
+  labs(title = "1.2 | Dependency of palmitic on oleic ",
+                     x = "palmitic",
+                     y = "oleic")
 graph2
 ```
+
+From  plot 1.1 where the points are colored by the Linoleic  we observe that due to the close
+saturation of color ,it is difficult to differentiate between appropriate information from the plot. plot 1.2 is similar plot but colored by the dircretized varialble of Linoleic which indeed present us with more information regarding the distribution of the data.
+
 
 
 
 ## 1.2)
+Create scatterplots of Palmitic vs Oleic in which you map the discretized Linoleic with four
+classes to:
+a. Color
+b. Size
+c. Orientation angle (use geom_spoke() )
+State in which plots it is more difficult to differentiate between the categories and
+connect your findings to perception metrics (i.e. how many bits can be decoded by a
+specific aesthetics
 
 ```{r 2.1, warning=FALSE}
 graph3 <- ggplot(data = olive,
                  aes(x = palmitic,
                      y = oleic,
                      color = Linoleic_interval_data)) +
-              geom_point()
+              geom_point()+
+              labs(title= "1.3 | Palmitic and Oleic coloured by discretized lenoleic",
+                   x="palmitic",
+                   y="oleic")
 graph3
 
 graph4 <-  ggplot(data = olive,
                   aes(x = palmitic,
                       y = oleic,
                       size = Linoleic_interval_data)) +
-                  geom_point()
+                  geom_point()+
+                   labs(title= "1.4 | Palmitic and Oleic size by discretized lenoleic",
+                   x="palmitic",
+                   y="oleic")
 graph4
 
 graph5 <-  ggplot(data = olive,
                   aes(x = palmitic,
                       y = oleic,
                       geom_spoke(Linoleic_interval_data))) +
-                  geom_point()
+                  geom_point()+
+                   labs(title= "1.5 | Palmitic and Oleic orientation angle by discretized lenoleic",
+                   x="palmitic",
+                   y="oleic")
 graph5
 ```
-
+Among the three plots plot 2.2 is hard to differentiate between the categories. due to the overlaping of data points and similar color for all classes.
 
 
 ## 1.3
+Create a scatterplot of Oleic vs Eicosenoic in which color is defined by numeric values of
+Region. What is wrong with such a plot? Now create a similar kind of plot in which Region is a
+categorical variable. How quickly can you identify decision boundaries? Does preattentive or
+attentive mechanism make it possible?
 
 ```{r 3.1, warning = FALSE}
 graph6 <- ggplot(data = olive,
                  aes(x = oleic,
                      y = eicosenoic,
                      color = Region)) +
-                  geom_point()
+                     geom_point()+
+          labs(title = "1.6 | Scatterplot of Oleic and Eicosenoic",
+               x = "oleic",
+               y= "eicosenoic")
 graph6
 ```
 
 ## Converting numerical data into categorical data 
 
-```{r conversion}
+```{r 3.2 conversion}
 region_categorial <- cut(olive$Region, 
                          breaks = c(0,1,2,3),
                          labels = c("North","South","Sardinia islands"))
@@ -99,12 +138,26 @@ graph7 <- ggplot(data = olive,
                  aes(x = oleic,
                      y = eicosenoic,
                      color = region_categorial)) +
+              labs(title = "1.7 | Scatterplot of Oleic and Eicosenoic",
+               x = "oleic",
+               y= "eicosenoic")+
                   geom_point()
 graph7
 ```
+Decision boundaries can be easily defined in 3.2 to 3.1 since the 3.1 classified regions in a numerical value where it is difficult to interpret information from the graph compared to 3.2 where the regions are classified and color coded accordingly.
+
+Both plots represent data in a similar way but  due to the pre-attentive mechanism,plot 3.2 makes things easier to identify on the data plot. 
+
+
 
 
 ## 1.4)
+
+Create a scatterplot of Oleic vs Eicosenoic in which color is defined by a discretized Linoleic (3
+classes), shape is defined by a discretized Palmitic (3 classes) and size is defined by a
+discretized Palmitoleic (3 classes). How difficult is it to differentiate between 27=3*3*3
+different types of observations? What kind of perception problem is demonstrated by this
+graph?
 
 ```{r 4.1}
 linoleic_class_data <- cut_interval(olive$linoleic, 3)
@@ -117,6 +170,9 @@ graph8 <- ggplot(data = olive,
                      color = linoleic_class_data,
                      shape = palmitic_class_data,
                      size = as.numeric(palmitoleic_class_data))) +
+              labs(title ="1.8 | oleic vs eicosenoic",
+                   x = "oleic",
+                   y= "eicosenoic")+
                   geom_point()
 graph8
 ```
@@ -130,6 +186,9 @@ graph9 <- ggplot(data = olive,
                      color =Region,
                      shape = palmitic_class_data,
                      size = as.numeric(palmitoleic_class_data))) +
+  labs(title ="1.9 | oleic  vs eicosenoic",
+        x = "oleic",
+         y = "ecosenoic")+
                   geom_point()
 graph9
 ``` 
@@ -142,9 +201,14 @@ graph10 <- plot_ly(data = olive,
                    labels = ~Area,
                    values = olive,
                    showlegend = FALSE,
-                   showlabels = FALSE)
+                   showlabels = FALSE,
+                   title= "1.10 | proportions of oil coming from diferent regions",
+                   )
 graph10
 ```
+As there are no labels and on the pie chart it is hard to understand the represtation of the plot 
+and due to its  interaction ability it is not suitable for static reports.
+
 
 ## 1.7)
 
@@ -153,7 +217,8 @@ graph11 <- ggplot(data = olive,
                   aes(x = linoleic,
                       y = eicosenoic)) +
                   geom_point() +
-                  geom_density_2d()
+                  geom_density_2d()+
+                  labs(title ="1.11 | 2d density plot of lenoleic and eicosenoic")
 graph11
 ```
 
