@@ -198,10 +198,11 @@ plot_ly(data = baseball,
        color = ~League,
        colors = "Set1",
        text = ~Team) %>%
-  add_text()
+  add_text() %>%
+  layout(title = "NMDS of the Baseball 2016 Data")
 ```
 
-The plot shows no obvious pattern between the two leagues. The most remote outlier are the Boston Red Sox but the Milwaukee Brewers, Los Angeles Angels, San Diego Padres and Philadelphia Phillies can be classified as outliers as well.
+The plot shows no obvious pattern between the two leagues. However, the x-axis is better suited to differentiate between the leagues than the y-axis since more of the NL teams are on the positive side and vice versa for the AL teams. The outliers concerning this dimension are exclusively from the respective league. The most remote outlier are the Boston Red Sox but the Milwaukee Brewers, Los Angeles Angels, San Diego Padres and Philadelphia Phillies can be classified as outliers as well.
 
 ## 2.3)
 
@@ -212,14 +213,35 @@ shepard <- as.data.frame(Shepard(d, fit$points))
 plot_ly(data = shepard,
         x = ~x,
         y = ~y,
-        type = "scatter")
+        type = "scatter") %>%
+  layout(title = "Shepard Plot",
+         xaxis = list(title = "Original Minkowski Distance"),
+         yaxis = list(title = "Distance after NMDS"))
 ```
 
-The Shepard plot makes a quite good impression with the points giving the Minkowski distances and the distances after the NMDS constituing an overall monotonically increasing line over the whole range. However, there are some points closer to the origin of the plot that deviate negatively from the line.
+The Shepard plot makes a quite good impression with the points giving the Minkowski distances and the distances after the NMDS constituing an overall monotonically increasing line over the whole range. However, there are some points closer to the origin of the plot that deviate negatively from the line. As can be seen by the final conversion value in the output of the NMDS, the final Stress value, is at about 12.06% which is considered an acceptable value.
 
 ## 2.4)
 
 Produce series of scatterplots in which you plot the MDS variable that was the best in the differentiation between the leagues in step 2 against all other numerical variables of the data. Pick up two scatterplots that seem to show the strongest (positive or negative) connection between the variables and include them into your report. Find some information about these variables in Google – do they appear to be important in scoring the baseball teams? Provide some interpretation for the chosen MDS variable.
+
+```{r scatters, message=FALSE, warning=FALSE}
+OPS <- plot_ly(data = baseball,
+               x = ~OPS,
+               y = ~x,
+               type = "scatter",
+               name = ~"On Base + Slugging")
+TB <- plot_ly(data = baseball,
+               x = ~TB,
+               y = ~x,
+               type = "scatter",
+              name = ~"Total Bases")
+subplot(OPS, TB) %>%
+  layout(title = "NMDS X-Dimension and most important Correlates",
+         yaxis = list(title = "NMDS X-Dimension"))
+```
+
+I have selected the two variables with the highest correlations with the x-dimension of the presented NMDS. These are the sum of the percent of the time on base and the percent slugging (OPS, r = `r round(cor(baseball$OPS, baseball$x), digits = 2)`) and the total number of bases a player has gained with hits (TB, r = `r round(cor(baseball$TB, baseball$x), digits = 2)`). Both variables appear to be important statistics in baseball analysis and highly predictive of a teams success. For OPS, the ability of a player both to get on base and to hit for power, two important offensive skills, are represented. This measure is a composite measure of multiple key defining characteristics why its importance is not surprising. TB is part of OPS since TB divided by the number at bats gives the slugging percentage and is therefore related to one of the variables for offensive playing characteristics.
 
 # Contributions
 
