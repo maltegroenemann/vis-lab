@@ -42,8 +42,10 @@ Encoding(SCB_Incomes_2016$Region) <- "latin1"
 
 SCB_Incomes_2016$Region <- str_remove(SCB_Incomes_2016$Region, " county")
 SCB_Incomes_2016$Region <- str_remove(SCB_Incomes_2016$Region, "[:digit:][:digit:] ")
+SCB_Incomes_2016 <- SCB_Incomes_2016[order(SCB_Incomes_2016$Region), ]
 
 SE <- readRDS("gadm36_SWE_1_sf.rds")
+SE$NAME_1[11] <- "Örebro"
 ```
 
 ## 2.2
@@ -59,7 +61,8 @@ ggplot(SCB_Incomes_2016) +
   geom_boxplot(aes(x = "Adult", y = Adult), width = .2) +
   geom_violin(aes(x = "Senior", y = Senior)) +
   geom_boxplot(aes(x = "Senior", y = Senior), width = .2) +
-  labs(x = "Age Category",
+  labs(title = "Mean Income in Swedish Counties by Age Groups in 2016",
+       x = "Age Category",
        y = "Mean Disposable HH Income (1000 SEK)") +
   xlim("Young", "Adult", "Senior") +
   theme_bw()
@@ -88,16 +91,31 @@ maps. Analyze these maps and make conclusions. Is there any new information that
 could not discover in previous statistical plots?
 
 ```{r chloropleth}
-#SCB_Incomes_2016 <- merge(SCB_Incomes_2016, SE, by.x = "Region", by.y = "NAME_1")
+SE$Young <- SCB_Incomes_2016$Young
+SE$Adult <- SCB_Incomes_2016$Adult
 
 Y <- plot_ly() %>%
-  add_sf(data = SE, split = ~SCB_Incomes_2016$Young )
-Y
+  add_sf(data = SE, 
+         type="scatter",
+         split = ~NAME_1,
+         color = ~Young,
+         text = ~Young,
+         showlegend = FALSE)
 
-https://www.ida.liu.se/~732A98/info/3/choroplethMap.R
+A <- plot_ly() %>%
+  add_sf(data = SE, 
+         type="scatter",
+         split = ~NAME_1,
+         color = ~Adult,
+         text = ~Adult,
+         showlegend = FALSE)
 
+subplot(Y, A) %>%
+  layout(title = list(text = "Mean Incomes of the Young and Adult Age Groups"))
 ```
-,
+
+It can now be seen that the outlier at the top in both age groups is Stockholm county. And in general, the mean income seems to be lower in the North and higher in the South. The second highest income county is Halland.
+
 ## 2.5
 
 Use GPVisualizer http://www.gpsvisualizer.com/geocoder/ and extract the coordinates of
@@ -107,7 +125,14 @@ where we are located.
 ```{r linköping}
 lkpg <- list(latitude = 58.409814, longitude = 15.624522, name = "Linköping")
 
+Y %>%
+  add_markers(data = lkpg,
+              x = ~longitude, 
+              y = ~latitude,
+              text = ~name,
+              color = "red")
 ```
 
 # Contributions
 
+The main responsibility for Assignment 1 obliged to Varshith Konda while for Assignment 2 it was the responsibility of Malte Grönemann.
