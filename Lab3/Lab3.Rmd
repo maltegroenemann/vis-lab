@@ -1,0 +1,114 @@
+---
+title: "Visualisation - Lab 3 - Group A7"
+author: "Malte Grönemann and Varshith Konda"
+date: "20/09/2020"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(ggplot2)
+library(plotly)
+library(sp)
+library(sf)
+```
+
+# Assignment 2
+
+In this assignment, you will analyze the mean incomes of the Swedish households. Go to
+http://www.scb.se and choose “English” language, and in the “Search” menu type “Disposable
+income for households by region, type of households and age”, click “Search” and then click at
+“Statistical Database”. Select “Mean value, SEK thousands”, all counties, age groups 18-29, 30-49 and
+50-64, and year 2016. Download the “Comma delimited without heading” file.
+
+## 2.1
+
+Download a relevant map of Swedish counties from http://gadm.org/country and load it into
+R. Read your data into R and process it in such a way that different age groups are shown in
+different columns. Let’s call these groups Young, Adult and Senior.
+
+```{r data2}
+SCB_Incomes_2016 <- read.csv("SCB_Incomes_2016.csv", stringsAsFactors = FALSE)
+SCB_Incomes_2016 <- spread(SCB_Incomes_2016, age, X2016)
+colnames(SCB_Incomes_2016) <- c("Region", "Young", "Adult", "Senior")
+Encoding(SCB_Incomes_2016$Region) <- "latin1"
+
+SCB_Incomes_2016$Region <- str_remove(SCB_Incomes_2016$Region, " county")
+SCB_Incomes_2016$Region <- str_remove(SCB_Incomes_2016$Region, "[:digit:][:digit:] ")
+
+SE <- readRDS("gadm36_SWE_1_sf.rds")
+```
+
+## 2.2
+
+Create a plot containing three violin plots showing mean income distributions per age group.
+Analyze this plot and interpret your analysis in terms of income.
+
+```{r violin}
+ggplot(SCB_Incomes_2016) +
+  geom_violin(aes(x = "Young", y = Young)) +
+  geom_boxplot(aes(x = "Young", y = Young), width = .2) +
+  geom_violin(aes(x = "Adult", y = Adult)) +
+  geom_boxplot(aes(x = "Adult", y = Adult), width = .2) +
+  geom_violin(aes(x = "Senior", y = Senior)) +
+  geom_boxplot(aes(x = "Senior", y = Senior), width = .2) +
+  labs(x = "Age Category",
+       y = "Mean Disposable HH Income (1000 SEK)") +
+  xlim("Young", "Adult", "Senior") +
+  theme_bw()
+```
+
+The violin plot shows that the Young earn considerably less than the other age groups. Even the lowest mean income household by county with heads in the upper two age groups have considerably higher incomes than the highest income county in the youngest category. Also the range of incomes is higher in the two older caterories. Incomes of the oldest seem to be slightly higher overall compared to the intermediate group. For all age groups, the typical distributional form of income can be observed: most density is concentrated in the lower part of the range while there are outliers at the top. The distributions are therefore positively skewed. This suggests considerable mean differences in income between counties.
+
+## 2.3
+
+Create a surface plot showing dependence of Senior incomes on Adult and Young incomes in
+various counties. What kind of trend can you see and how can this be interpreted? Do you
+think that linear regression would be suitable to model this dependence?
+
+```{r surface}
+surface <- as.matrix(SCB_Incomes_2016[2:4])
+plot_ly(z = as.matrix(SCB_Incomes_2016[2:4])) %>%
+  add_surface()
+```
+
+Overall, we can see that the counties with higher incomes in the two lower age groups have higher earnings in the oldest age group as well. But there is a peak for high senior earnings at moderate earnings of the other groups. Using linear regression with income data is always a bit tricky because of the typical distributional form of income. This can be seen here as well, the relations seem not to be completely linear. When applied with some caution however, such relations could still be studied with a regression approach. For example with log-scaled income variables and non-linear specifications. 
+
+## 2.4
+
+Use Plotly and add_sf() function to visualize incomes of Young and Adults in two choropleth
+maps. Analyze these maps and make conclusions. Is there any new information that you
+could not discover in previous statistical plots?
+
+```{r chloropleth}
+#SCB_Incomes_2016 <- merge(SCB_Incomes_2016, SE, by.x = "Region", by.y = "NAME_1")
+
+Y <- plot_ly(data = SCB_Incomes_2016) %>%
+  add_trace() %>%
+  add_sf(data = SE,
+         inherit = F,
+         z = SCB_Incomes_2016$Young)
+Y
+
+```
+,
+## 2.5
+
+Use GPVisualizer http://www.gpsvisualizer.com/geocoder/ and extract the coordinates of
+Linköping. Add a red dot to the choropleth map for Young from step 4 in order to show
+where we are located.
+
+```{r linköping}
+lkpg <- list(latitude = 58.409814, longitude = 15.624522, name = "Linköping")
+
+```
+
+# Contributions
+
