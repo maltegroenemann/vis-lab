@@ -176,6 +176,8 @@ as the mapped regions have significant difference , it is easy to differentiate 
 In plot 4 we can clearly see the entire map and analyze it easily as compared to plot 5 as it mapped with conic equal projections,
 due to this we can only view certain section of the map, which is stressful task to get a clear perception of whole section of map at once, and it is difficult.
 
+Usage of this projection is unusual and it not necessary to have equal areas for the choropleth maps,therefore equirectangular projection is preffered.
+
 
 
 
@@ -214,3 +216,4 @@ plot6 <- map_data("world")%>%
 
 plot6
 ```
+We obsere high concentration of the points and points with brighest color are in coastal regions that are also highly populated , the dicretezisation reduced the over plotting when compared to plot 1 ,but improvement is only marginal , but the basic finding of the mosquitoe occurances are visible in  the plot 1 already. 
