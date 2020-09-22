@@ -90,12 +90,11 @@ could not discover in previous statistical plots?
 ```{r chloropleth}
 #SCB_Incomes_2016 <- merge(SCB_Incomes_2016, SE, by.x = "Region", by.y = "NAME_1")
 
-Y <- plot_ly(data = SCB_Incomes_2016) %>%
-  add_trace() %>%
-  add_sf(data = SE,
-         inherit = F,
-         z = SCB_Incomes_2016$Young)
+Y <- plot_ly() %>%
+  add_sf(data = SE, split = ~SCB_Incomes_2016$Young )
 Y
+
+https://www.ida.liu.se/~732A98/info/3/choroplethMap.R
 
 ```
 ,
