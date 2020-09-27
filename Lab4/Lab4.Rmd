@@ -1,0 +1,284 @@
+---
+title: "Visualisation - Lab 4 - Groups A7"
+author: "Malte Grönemann and Varshith Konda"
+date: "26/09/2020"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+
+library(plotly)
+library(ggplot2)
+library(seriation)
+```
+
+# Assignment 1
+
+The file prices-and-earnings.txt shows a UBS report
+comparing prices, wages, and other economic conditions in cities around the world. Some of
+the variables measured in 73 cities are Cost of Living, Food Costs, Average Hourly Wage,
+average number of Working Hours per Year, average number of Vacation Days, hours of work
+(at the average wage) needed to buy an iPhone, minutes of work needed to buy a Big Mac,
+and Women’s Clothing Cost.
+
+## 1.1
+
+Import the data to R and keep only the columns with the following numbers:
+1,2,5,6,7,9,10,16,17,18,19. Use the first column as labels in further analysis.
+
+```{r data1}
+prices_and_earnings <- read.delim("prices-and-earnings.txt", row.names = 1, stringsAsFactors = FALSE)
+prices_and_earnings <- prices_and_earnings[c(1, 4:6, 8, 9, 15:18)] 
+# mentioned variables - 1 because of using 1 as rownames and not importing it as a variable
+pae_scaled <- scale(prices_and_earnings)
+```
+
+## 1.2 
+
+Plot a heatmap of the data without doing any reordering. Is it possible to see clusters,
+outliers?
+
+```{r heatmap_unsorted}
+plot_ly(z = pae_scaled,
+        x = colnames(pae_scaled),
+        y = rownames(pae_scaled),
+        type = "heatmap") %>%
+  layout(title = "Unsorted Heatmap")
+```
+
+## 1.3
+
+Compute distance matrices by a) using Euclidian distance and b) as one minus correlation.
+For both cases, compute orders that optimize Hamiltonian Path Length and use Hierarchical
+Clustering (HC) as the optimization algorithm. Plot two respective heatmaps and state which
+plot seems to be easier to analyse and why. Make a detailed analysis of the plot based on
+Euclidian distance.
+
+```{r heatmaps_sorted}
+d_euc_cols <- dist(t(pae_scaled))
+d_euc_rows <- dist(pae_scaled)
+order_euc_cols <- get_order(seriate(d_euc_cols, method = "GW"))
+order_euc_rows <- get_order(seriate(d_euc_rows, method = "GW"))
+pae_euc <- pae_scaled[rev(order_euc_rows), order_euc_cols]
+
+plot_ly(z = pae_euc,
+        x = colnames(pae_euc),
+        y = rownames(pae_euc),
+        type = "heatmap") %>%
+  layout(title = "Ordered Heatmap using the Euclidian Distance")
+
+d_cor_cols <- as.dist(1 - cor(pae_scaled))
+d_cor_rows <- as.dist(1 - cor(t(pae_scaled)))
+order_cor_cols <- get_order(seriate(d_cor_cols, method = "GW"))
+order_cor_rows <- get_order(seriate(d_cor_rows, method = "GW"))
+pae_cor <- pae_scaled[rev(order_cor_rows), order_cor_cols]
+
+plot_ly(z = pae_cor,
+        x = colnames(pae_cor),
+        y = rownames(pae_cor),
+        type = "heatmap") %>%
+  layout(title = "Ordered Heatmap using the Pearson Distance")
+```
+
+## 1.4
+
+Compute a permutation that optimizes Hamiltonian Path Length but uses Traveling Salesman
+Problem (TSP) as solver. Compare the heatmap given by this reordering with the heatmap
+produced by the HC solver in the previous step – which one seems to be better? Compare
+also objective function values such as Hamiltonian Path length and Gradient measure
+achieved by row permutations of TSP and HC solvers (Hint: use criterion() function)
+
+```{r TSP}
+order_TSP_cols <- get_order(seriate(d_euc_cols, method = "TSP"))
+order_TSP_rows <- get_order(seriate(d_euc_rows, method = "TSP"))
+pae_TSP <- pae_scaled[rev(order_TSP_rows), order_TSP_cols]
+
+plot_ly(z = pae_TSP,
+        x = colnames(pae_TSP),
+        y = rownames(pae_TSP),
+        type = "heatmap") %>%
+  layout(title = "Heatmap using the Euclidian Distance and TSP")
+
+criterion(d_euc_rows)
+```
+
+## 1.5
+
+Use Ploty to create parallel coordinate plots from unsorted data and try to permute the
+variables in the plot manually to achieve a better clustering picture. After you are ready with this, brush clusters by different colors and comment about the properties of the clusters:
+which variables are important to define these clusters and what values of these variables are
+specific to each cluster. Can these clusters be interpreted? Find the most prominent outlier
+and interpret it.
+
+```{r parallelcoordinates}
+plot_ly(type = "parcoords",
+        line = list(color = ~prices_and_earnings$Wage.Net),
+        dimensions = list(
+          list(label = "iPhone 4S",
+               values = ~prices_and_earnings$iPhone.4S.hr.,
+               range = range(prices_and_earnings$iPhone.4S.hr.)),
+          list(label = "Hours worked",
+               values = ~prices_and_earnings$Hours.Worked,
+               range = range(prices_and_earnings$Hours.Worked)),
+          list(label = "Vacation Days",
+               values = ~prices_and_earnings$Vacation.Days,
+                 range = range(prices_and_earnings$Vacation.Days)),
+          list(label = "Goods and Services",
+               values = ~prices_and_earnings$Goods.and.Services...,
+               range = range(prices_and_earnings$Goods.and.Services...)),
+          list(label = "Clothing Index",
+               values = ~prices_and_earnings$Clothing.Index,
+               range = range(prices_and_earnings$Clothing.Index)),
+          list(label = "Wage",
+               values = ~prices_and_earnings$Wage.Net,
+               range = range(prices_and_earnings$Wage.Net)),
+          list(label = "Food Costs",
+               values = ~prices_and_earnings$Food.Costs..., 
+               range = range(prices_and_earnings$Food.Costs...)),
+          list(label = "Bread",
+               values = ~prices_and_earnings$Bread.kg.in.min.,
+               range = range(prices_and_earnings$Bread.kg.in.min.)),
+          list(label = "Big Mac",
+               values = ~prices_and_earnings$Big.Mac.min.,
+               range = range(prices_and_earnings$Big.Mac.min.)),
+          list(label = "Rice",
+               values = ~prices_and_earnings$Rice.kg.in.min.,
+               range = range(prices_and_earnings$Rice.kg.in.min.))
+        )) %>%
+  layout(title = "Parallel Coordinates Plot")
+```
+
+## 1.6
+
+Use the data obtained by using the HC solver and create a radar chart diagram with
+juxtaposed radars. Identify two smaller clusters in your data (choose yourself which ones)
+and the most distinct outlier.
+
+## 1.7
+
+Which of the tools you have used in this assignment (heatmaps, parallel coordinates or radar
+charts) was best in analyzing these data? From which perspective? (e.g. efficiency, simplicity,
+etc.)
+
+# Assignment 2
+
+```{r data2}
+adult <- read.csv("adult.csv", header = FALSE, stringsAsFactors = FALSE)
+```
+
+## 2.1
+
+Use ggplot2 to make a scatter plot of Hours per Week versus age where observations are
+colored by Income level. Why it is problematic to analyze this plot? Make a trellis plot of the
+same kind where you condition on Income Level. What new conclusions can you make here?
+
+```{r trellis}
+ggplot(adult) +
+  aes(x = V1,
+      y = V13,
+      colour = V15) +
+  geom_jitter(alpha = .2) +
+  labs(title = "Scatterplot of weekly Hours by Age",
+       x = "Age",
+       y = "Weekly Work Hours",
+       colour = "Income Level")
+
+ggplot(adult) +
+  aes(x = V1,
+      y = V13) +
+  geom_jitter(alpha = .2) +
+  facet_wrap(~V15) +
+  labs(title = "Scatterplot of weekly Hours by Age separated by Income Level",
+       x = "Age",
+       y = "Weekly Work Hours")
+```
+
+## 2.2
+
+Use ggplot2 to create a density plot of age grouped by the Income level. Create a trellis plot
+of the same kind where you condition on Marital Status. Analyze these two plots and make
+conclusions.
+
+```{r trellis2}
+ggplot(adult) +
+  aes(x = V1,
+      fill = V15) +
+  geom_density(alpha = .5) +
+  labs(title = "Density of Age by Income Level",
+       x = "Age",
+       fill = "Income Level")
+
+ggplot(adult) +
+  aes(x = V1,
+      fill = V15) +
+  geom_density(alpha = .5) +
+  facet_wrap(~V6) +
+  labs(title = "Density of Age by Income Level and Marital Status",
+       x = "Age",
+       fill = "Income Level")
+```
+
+## 2.3
+
+Filter out all observations having Capital loss equal to zero. For the remaining data, use Plotly
+to create a 3D-scatter plot of Education-num vs Age vs Captial Loss. Why is it difficult to
+analyze this plot? Create a trellis plot with 6 panels in ggplot2 in which each panel shows a
+raster-type 2d-density plot of Capital Loss versus Education-num conditioned on values of
+Age (use cut_number() ) . Analyze this plot.
+
+```{r 3dscatter}
+adult2 <- adult %>% filter(V12 != 0)
+
+plot_ly(data = adult2,
+        x = ~V1,
+        y = ~V5,
+        z = ~V12,
+        size = 1) %>% 
+  layout(title = "Scatterplot of Age, Education and Capital Loss",
+         scene = list(xaxis = list(title = "Age"),
+                      yaxis = list(title = "Education"),
+                      zaxis = list(title = "Capital Loss")))
+
+ggplot(adult2) +
+  aes(x = V5,
+      y = V12) +
+  stat_density_2d(geom = "raster",
+                  aes(fill = after_stat(density)),
+                  contour = FALSE) +
+  facet_wrap(~cut_number(V1, n = 6)) +
+  labs(title = "2D-Density of Education and Capital Loss by Age Groups",
+       x = "Education",
+       y = "Capital Loss")
+```
+
+## 2.4
+
+Make a trellis plot containing 4 panels where each panel should show a scatter plot of Capital
+Loss versus Education-num conditioned on the values of Age by a) using cut_number() b)
+using Shingles with 10% overlap. Which advantages and disadvantages you see in using
+Shingles?
+
+```{r shingles}
+ggplot(adult2) +
+  aes(x = V5,
+      y = V12) +
+  geom_jitter() +
+  facet_wrap(~cut_number(V1, n = 4)) +
+  labs(title = "Scatter Plots of Education and Capital Loss by Age Groups",
+       x = "Education",
+       y = "Capital Loss")
+
+ggplot(adult2) +
+  aes(x = V5,
+      y = V12) +
+  geom_jitter() +
+  facet_wrap(~V1) + # todo: change to shingles
+  labs(title = "Scatter Plots of Education and Capital Loss by Age Groups",
+       x = "Education",
+       y = "Capital Loss")
+
+```

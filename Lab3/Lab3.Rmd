@@ -1,8 +1,8 @@
 ---
 title: "Visualisation - Lab 3 - Group A7"
 author: "Malte Grönemann and Varshith Konda"
-date: "20/09/2020"
-output: html_document
+date: "22/09/2020"
+output: html_notebook
 runtime: shiny
 ---
 
@@ -18,7 +18,184 @@ library(ggplot2)
 library(plotly)
 library(sp)
 library(sf)
+library(maps)
+library(mapproj)
 ```
+
+# Assignment 1
+
+File aegypti_albopictus.csv shows information about the location and detection time of two types of
+mosquitoes. Both Aedes aegypti and Aedes albopictus mosquitoes may spread viruses like Zika,
+dengue, chikungunya and other viruses but Aedes aegypti are more likely to spread these viruses
+(and therefore are more dangerous).
+
+```{r data1}
+secrettoken = "pk.eyJ1IjoidmFya28xMTYiLCJhIjoiY2tmNWg2YjVqMDFsYTJzcjRqY2NxM2wyZiJ9.i_6sbQHwO3Sdsojg3TIdxw"
+Sys.setenv('MAPBOX_TOKEN' = secrettoken)
+aa_data <- read.csv("aegypti_albopictus.csv")
+```
+
+## 1.1
+
+Use MapBox interface in Plotly to create two dot maps (for years 2004 and 2013) that show
+the distribution of the two types of mosquitos in the world (use color to distinguish between
+mosquitos). Analyze which countries and which regions in these countries had high density of
+each mosquito type and how the situation changed between these time points. What
+perception problems can be found in these plots?
+
+```{r 1.1 , warning = FALSE}
+data_2004 <- filter(aa_data,YEAR == 2004)
+
+plot1 <- map_data("world")%>%
+           plot_mapbox(x= ~long,y=~lat)%>%
+           add_markers(data = data_2004,x=~X,y=~Y,color=~VECTOR)%>%
+           layout(title = "Plot - 1  mapping mosquitoes occurances in 2004 throughout the world")
+    
+plot1
+
+
+data_2013 <- filter(aa_data,YEAR == 2013)
+
+plot2 <- map_data("world")%>%
+          plot_mapbox(x =~lat , y= ~long)%>%
+          add_markers(data = data_2013,x = ~X, y=~Y,color = ~VECTOR)%>%
+          layout(title = "Plot - 2  mapping mosquitoes occurances in 2013 throughout the world")
+  
+plot2
+```
+
+We can observe from the plot 1 that in 2004 the occurrences of the both mosquitoes spread throughout the continents, Aedes aegypti has been occurring highly in coastal areas especially in the coast of South America and countries of Asia, Kenya but on the 
+contrary Taiwan had high occurrences of aedes abopictus.
+
+Aedes albopictus were mostly found in the more interior regions  and mostly found in  North America and coastal regions of Japan and Indonesia.
+
+In plot 2 we can look at the data from the year 2013 where we can clearly see that the there was an exponential growth of aedes aegypti population in Brazil when compared to the population in  2004. Europe had seen increased number of aedes albopictus, overall there was decrease in aedes albopictus all over the world but Taiwan had significantly same occurrences.
+
+Both types of mosquitoes were found in central region of the globe and there were some occurrences in Australia and Europe.
+
+## 1.2
+
+Compute Z as the numbers of mosquitos per country detected during all study period. Use
+plot_geo() function to create a choropleth map that shows Z values. This map should have an
+Equirectangular projection. Why do you think there is so little information in the map?
+
+
+```{r 2 , warning = FALSE}
+compute_z <-   aa_data%>%count(COUNTRY_ID,sort = TRUE)
+
+geo <- list(
+  projection = list(
+    type = 'equirectangular'),
+  showland = TRUE)
+
+plot3 <- plot_geo(compute_z,type= 'choropleth')%>%
+              add_trace(z = compute_z$n, locations = compute_z$COUNTRY_ID)%>%
+              layout(geo = geo,
+                     title = "plot - 3  Mapping Z values on the map with equirectangular projection")%>%
+            colorbar(title = "Occurance of mosquitoes occurences in country")
+
+plot3
+```
+
+In the plot 3 we mapped the Z values on the equirectangular projection of the world map, we can see that the variance in the indistinguishable color spectrum of the countries having less than five thousand occurrences is very low. This leads to perception issue in analyzing the plot.
+
+Taiwan has seen high population of mosquitoes but the due to low contrast in map we cannot observe it with preattentive cognition.
+
+## 1.3
+
+Create the same kind of maps as in step 2 but use
+
+a.)   Equirectangular projection with choropleth color log (𝑍)
+
+b.)   Conic equal area projection with choropleth color log (𝑍)
+
+Analyze the map from step 3a and make conclusions. Compare maps from 3a and 3b and
+comment which advantages and disadvantages you may see with both types of maps.
+
+```{r ,warning = FALSE}
+geo2 <- list(
+  projection = list(
+    type = 'equirectangular'),
+  showland = TRUE,
+  landcolor = toRGB("gray95"),
+  countrycolor = toRGB("gray80"))
+
+
+plot4 <- plot_geo(aa_data, type = 'choropleth')%>%
+          add_trace(z= log(compute_z$n) , 
+                    locations = compute_z$COUNTRY_ID )%>%
+          layout(geo = geo2,
+                 title = "plot - 4  Mapping Log of Z values on the map with equirectangular projection")
+          
+plot4  
+
+
+geo3 <- list(
+  projection = list(
+    type = "conic equal area"),
+  showland = TRUE,
+  landcolor = toRGB("gray95"),
+  countrycolor = toRGB("gray80"))
+
+plot5 <- plot_geo(aa_data, 
+                  type = 'choropleth')%>%
+  add_trace(z= log(compute_z$n) , 
+            locations = compute_z$COUNTRY_ID )%>%
+   layout(geo = geo3, 
+          title = "plot - 5  Mapping Z values on the map with conic equal area projection")
+plot5 
+
+```
+
+In the plot 4  we mapped the Log(Z) values on the equirectangular projection of the world map  instead of computed values , using this approach it is easy to distinguish and analyze.
+
+as the mapped regions have significant difference , it is easy to differentiate the intensity of mosquitoes occurrences on the map.
+
+In plot 4 we can clearly see the entire map and analyze it easily as compared to plot 5 as it mapped with conic equal projections,
+due to this we can only view certain section of the map, which is stressful task to get a clear perception of whole section of map at once, and it is difficult.
+
+Usage of this projection is unusual and it not necessary to have equal areas for the choropleth maps,therefore equirectangular projection is preffered.
+
+## 1.4
+
+In order to resolve problems detected in step 1, use data from 2013 only for Brazil and
+
+a.) Create variable X1 by cutting X into 100 piecies (use cut_interval() )
+
+b.) Create variable Y1 by cutting Y into 100 piecies (use cut_interval() )
+
+c.) Compute mean values of X and Y per group (X1,Y1) and the amount of observations N per group (X1,Y1)
+
+d.)  Visualize mean X,Y and N by using MapBox
+
+Identify regions in Brazil that are most infected by mosquitoes. Did such discretization
+help in analyzing the distribution of mosquitoes?
+
+```{r , warning = FALSE}
+brazil_2013 <- filter(aa_data,aa_data$YEAR == 2013 & aa_data$COUNTRY == "Brazil")
+
+brazil_2013$X1 <- cut_interval(brazil_2013$X,100)
+brazil_2013$Y1 <- cut_interval(brazil_2013$Y,100)
+
+brazil_2013_mean <- brazil_2013 %>%
+  group_by(X1,Y1) %>%
+  summarise(meanX = mean(X),
+            meanY = mean(Y),
+            N = n())
+
+plot6 <- map_data("world")%>%
+  plot_mapbox(x= ~long,y=~lat)%>%
+  add_markers(data = brazil_2013_mean,
+              x=~meanX,
+              y=~meanY,
+              color=~N)%>%
+  layout(title= "plot - 5  Mapping Z values on the map with equirectangualr projection")
+
+plot6
+```
+
+We obsere high concentration of the points and points with brighest color are in coastal regions that are also highly populated , the dicretezisation reduced the over plotting when compared to plot 1 ,but improvement is only marginal , but the basic finding of the mosquitoe occurances are visible in  the plot 1 already. 
+
 
 # Assignment 2
 
@@ -95,23 +272,21 @@ SE$Young <- SCB_Incomes_2016$Young
 SE$Adult <- SCB_Incomes_2016$Adult
 
 Y <- plot_ly() %>%
-  add_sf(data = SE, 
-         type="scatter",
+  add_sf(data = SE,
          split = ~NAME_1,
          color = ~Young,
-         text = ~Young,
-         showlegend = FALSE)
+         showlegend = FALSE) %>%
+  layout(title = list(text = "Mean Incomes of the Young Age Group"))
 
 A <- plot_ly() %>%
-  add_sf(data = SE, 
-         type="scatter",
+  add_sf(data = SE,
          split = ~NAME_1,
          color = ~Adult,
-         text = ~Adult,
-         showlegend = FALSE)
+         showlegend = FALSE) %>%
+  layout(title = list(text = "Mean Incomes of the Adult Age Group"))
 
-subplot(Y, A) %>%
-  layout(title = list(text = "Mean Incomes of the Young and Adult Age Groups"))
+Y
+A
 ```
 
 It can now be seen that the outlier at the top in both age groups is Stockholm county. And in general, the mean income seems to be lower in the North and higher in the South. The second highest income county is Halland.
