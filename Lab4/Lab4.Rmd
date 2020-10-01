@@ -3,7 +3,7 @@ title: "Visualisation - Lab 4 - Groups A7"
 author: "Malte Grönemann and Varshith Konda"
 date: "26/09/2020"
 output: html_document
-runtime: shiny
+
 ---
 
 ```{r setup, include=FALSE}
@@ -14,6 +14,8 @@ knitr::opts_chunk$set(warning = FALSE)
 library(plotly)
 library(ggplot2)
 library(seriation)
+library(dplyr)
+library(lattice)
 ```
 
 # Assignment 1
@@ -204,65 +206,86 @@ etc.)
 
 In my mind, most clusters, their geographic distribution and outlier analysis was already feasible with the heatmap using euclidian distance and HC. At the same time, the heatmaps are most efficient in their use of space and relatively simple to understand. The parallel coordinate plot has the advantage of showing the amount of variation in absolute values in the respective variables. And since it does not need scaling, values are more intuitive in that plot. The radar plots are suited for analysis of each individual case but the easy to identify large patterns is lost. This method is also very ineffiecient in the use of space.
 
+
+
+
 # Assignment 2
 
-```{r data2}
-adult <- read.csv("adult.csv", header = FALSE, stringsAsFactors = FALSE)
+```{r , warning=FALSE}
+adult_data <- read.csv("adult.csv",header = FALSE)
+names(adult_data) <- c("age","workclass","fnlwgt","education","education_num","marital_status","occupation","relationship","race","sex","capital_gain","capital_loss","hours_per_week","native_country","income_level")
 ```
 
-## 2.1
+## Question 1 
 
 Use ggplot2 to make a scatter plot of Hours per Week versus age where observations are
-colored by Income level. Why it is problematic to analyze this plot? Make a trellis plot of the
-same kind where you condition on Income Level. What new conclusions can you make here?
+colored by Income level. Why it is problematic to analyze this plot? Make a trellis plot of the same kind where you condition on Income Level. What new conclusions can you make here? 
+```{r question 1, warning=FALSE}
+plot1 <- ggplot(data  = adult_data,aes(x= hours_per_week , y = age , color =income_level))+
+   labs(title = "Plot 2.1 Scatterplot of weekly Hours by Age",
+       x = "weekly work hours",
+       y = "age",
+       colour = "Income Level")+
+  geom_point()
+  
+plot1
 
-```{r trellis}
-ggplot(adult) +
-  aes(x = V1,
-      y = V13,
-      colour = V15) +
-  geom_jitter(alpha = .2) +
-  labs(title = "Scatterplot of weekly Hours by Age",
-       x = "Age",
-       y = "Weekly Work Hours",
-       colour = "Income Level")
+plot2 <- qplot(hours_per_week,age, data=adult_data, facets=~income_level)+
+  labs(title = "Plot 2.2 Trellis plot of weekly Hours by Age separated by Income Level",
+       x = "weekly work hours",
+       y = "age")
 
-ggplot(adult) +
-  aes(x = V1,
-      y = V13) +
-  geom_jitter(alpha = .2) +
-  facet_wrap(~V15) +
-  labs(title = "Scatterplot of weekly Hours by Age separated by Income Level",
-       x = "Age",
-       y = "Weekly Work Hours")
+plot2
+
+
 ```
 
-## 2.2
+
+As we plotted both income level ranges in plot 2.1 we observe over plotting due in the plot,but we can interpret that high number of people earning less than or equal to fifty thousand is higher.
+
+In plot 2.2 using trellis plot we have divided the scateer plot into two plots according to their income levels,in this plot using perception we can depict that peaople earning less than fifty thousand is higher,people  weekly hours  mostly lies between zero and 75,
+
+Income level is higher than fifty thousand in population working 25 to 55 hours weekly.
+
+
+## Question 2
 
 Use ggplot2 to create a density plot of age grouped by the Income level. Create a trellis plot
 of the same kind where you condition on Marital Status. Analyze these two plots and make
 conclusions.
+```{r question 2 , warning =FALSE}
+plot3 <- 
+  ggplot(adult_data , aes(age,fill = income_level))+
+  geom_density(alpha = 0.50)+
+  labs(title  = "2.3 density plot of Ages grouped by income level")
 
-```{r trellis2}
-ggplot(adult) +
-  aes(x = V1,
-      fill = V15) +
-  geom_density(alpha = .5) +
-  labs(title = "Density of Age by Income Level",
-       x = "Age",
-       fill = "Income Level")
+plot3
 
-ggplot(adult) +
-  aes(x = V1,
-      fill = V15) +
-  geom_density(alpha = .5) +
-  facet_wrap(~V6) +
-  labs(title = "Density of Age by Income Level and Marital Status",
-       x = "Age",
-       fill = "Income Level")
+
+plot4 <-  ggplot(adult_data , aes(age,fill = adult_data$income_level))+
+  geom_density(alpha = 0.50)+
+  facet_wrap(~adult_data$`marital_status`)+
+  labs(title = "2.4 Trellis plot of income and age whith marital status")
+  
+plot4
 ```
 
-## 2.3
+from plot 2.3 we can interpret that population earning less than fifty thousand are higher from ages 10 to 25 gradual decrease was observed.
+
+Population with income level higher were higher number between ages thirties to late forties there was a sharp descent was observed.
+
+In plot 2.4 it is clearly observed that almost all the groups have similar densities on income levels but there were spikes in densities were found in never-married and married-spouse-absent.
+
+
+The percentage of population who are never married earned more in their early twenties.
+
+Married-AF-spouses were more in from early twenties to early fifties.
+
+Widowed population in  the both income groups are similar and are in more percentage from the ages 50 to 75.
+
+
+
+## Question 3 
 
 Filter out all observations having Capital loss equal to zero. For the remaining data, use Plotly
 to create a 3D-scatter plot of Education-num vs Age vs Captial Loss. Why is it difficult to
@@ -270,55 +293,101 @@ analyze this plot? Create a trellis plot with 6 panels in ggplot2 in which each 
 raster-type 2d-density plot of Capital Loss versus Education-num conditioned on values of
 Age (use cut_number() ) . Analyze this plot.
 
-```{r 3dscatter}
-adult2 <- adult %>% filter(V12 != 0)
+```{r question 3 , warninig = FALSE}
 
-plot_ly(data = adult2,
-        x = ~V1,
-        y = ~V5,
-        z = ~V12,
-        size = 1) %>% 
-  layout(title = "Scatterplot of Age, Education and Capital Loss",
-         scene = list(xaxis = list(title = "Age"),
-                      yaxis = list(title = "Education"),
-                      zaxis = list(title = "Capital Loss")))
+CL_data <-  filter(adult_data ,capital_loss > 0)
 
-ggplot(adult2) +
-  aes(x = V5,
-      y = V12) +
+plot5 <-  plot_ly(CL_data,x = ~education_num  , y = ~age,z = ~capital_loss)%>%
+          add_markers()%>%
+          labs(title = "2.5 3D scatter plot Education number vs age vs capital loss ")
+
+ 
+
+plot5
+
+
+plot6 <- ggplot(CL_data, aes(x = capital_loss , y = education_num ))+
   stat_density_2d(geom = "raster",
                   aes(fill = after_stat(density)),
-                  contour = FALSE) +
-  facet_wrap(~cut_number(V1, n = 6)) +
-  labs(title = "2D-Density of Education and Capital Loss by Age Groups",
-       x = "Education",
-       y = "Capital Loss")
+                  contour = FALSE)+
+          facet_wrap(~cut_interval(age,n = 6))+
+  labs(title = "2.6 raster plot of Education number vs capital loss" )
+
+
+plot6
 ```
 
-## 2.4
+In plot 2.5 we have created an 3d scatter plot for education number , age with Z axis of capital loss.
+
+higher density of points were observed between 1000 to 2500 of capital loss
+With this kind of plot there was lot of over plotting done, and we can't practically analyze lot more information from this plot.
+
+The information presented by 2.6 raster plot   to us is also very minimal.
+
+As discussed in 2.5 plot the high density of capitol loss was found majorly from 1000 to 2500 range.
+
+
+
+Education number and capitol loss was higher from ages late teens to early sixties.
+
+
+highest age density was found in 53.5 to 65.7 as observed in pane 4.
+
+There was very low density observed in from  from the ages 77.8 to 90 is. 
+
+
+
+
+
+
+
+
+## Question 4
 
 Make a trellis plot containing 4 panels where each panel should show a scatter plot of Capital
 Loss versus Education-num conditioned on the values of Age by a) using cut_number() b)
 using Shingles with 10% overlap. Which advantages and disadvantages you see in using
 Shingles?
 
-```{r shingles}
-ggplot(adult2) +
-  aes(x = V5,
-      y = V12) +
-  geom_jitter() +
-  facet_wrap(~cut_number(V1, n = 4)) +
-  labs(title = "Scatter Plots of Education and Capital Loss by Age Groups",
-       x = "Education",
-       y = "Capital Loss")
+```{r question 4 }
+plot7 <- ggplot(CL_data) +
+  aes(x =  capital_loss,
+      y = education_num) +
+  geom_point() +
+  facet_wrap(~cut_number(CL_data$age, 10)) +
+  labs(title = "2.7 Scatter Plots of Education and Capital Loss by Age Groups",
+       x = "capital loss",
+       y = "education number")
+plot7
 
-ggplot(adult2) +
-  aes(x = V5,
-      y = V12) +
-  geom_jitter() +
-  facet_wrap(~V1) + # todo: change to shingles
-  labs(title = "Scatter Plots of Education and Capital Loss by Age Groups",
-       x = "Education",
-       y = "Capital Loss")
+shin <- equal.count(CL_data$age,number = 10 ,overlap = 0.1)
 
+
+plot8 <- ggplot(CL_data) +
+          aes(x = capital_loss,
+              y = education_num) +
+          geom_point() +
+          facet_wrap(shin)+
+          labs(title = "2.8  Scatter Plots of Education and Capital Loss by Age Groups",
+          x = "capital loss",
+          y = "Education num ")
+  
+plot8
 ```
+
+
+from plot 2.7 we observed Education number and education number  for the population mostly lie between 8,16 and 1000 to 2500  especially from the age of  26 and above.
+
+
+ 
+The plot 2.8  with intervals of 10& shingles present us with  more insight into data as we get more detailed data points for every age in the data set.
+
+There is a problem of over plotting observed.
+
+2.7 has advantage of less over plotting and more insight into different  age groups.
+
+
+# Contributions
+
+The main responsibility for Assignment 1 obliged to Malte Grönemann while for Assignment 2 it was the responsibility of konda varshith.
+

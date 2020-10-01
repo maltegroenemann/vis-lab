@@ -96,14 +96,19 @@ graph4 <-  ggplot(data = olive,
                    y="oleic")
 graph4
 
+olive$linoleic_angle <- as.numeric(cut_interval(olive$linoleic,4,labels = c(0,.5*pi,1*pi, 2*pi)))
+
+
 graph5 <-  ggplot(data = olive,
                   aes(x = palmitic,
                       y = oleic,
-                      geom_spoke(Linoleic_interval_data))) +
-                  geom_point()+
+                      angle = linoleic_angle,
+                      radius  = 50))+
+          geom_point()+
                    labs(title= "1.5 | Palmitic and Oleic orientation angle by discretized lenoleic",
                    x="palmitic",
-                   y="oleic")
+                   y="oleic")+
+          geom_spoke()
 graph5
 ```
 Among the three plots plot 2.2 is hard to differentiate between the categories. due to the overlaping of data points and similar color for all classes.
@@ -144,9 +149,13 @@ graph7 <- ggplot(data = olive,
                   geom_point()
 graph7
 ```
-Decision boundaries can be easily defined in 3.2 to 3.1 since the 3.1 classified regions in a numerical value where it is difficult to interpret information from the graph compared to 3.2 where the regions are classified and color coded accordingly.
 
-Both plots represent data in a similar way but  due to the pre-attentive mechanism,plot 3.2 makes things easier to identify on the data plot. 
+
+
+
+Decision boundaries can be easily defined in 1.7 to 1.6 since the 1.6 classified regions in a numerical value where it is difficult to interpret information from the graph compared to 3.2 where the regions are classified and color coded accordingly.
+
+Both plots represent data in a similar way but  due to the pre-attentive mechanism,plot 1.7 makes things easier to identify on the data plot. 
 
 
 
@@ -160,23 +169,30 @@ different types of observations? What kind of perception problem is demonstrated
 graph?
 
 ```{r 4.1}
-linoleic_class_data <- cut_interval(olive$linoleic, 3)
-palmitic_class_data <- cut_interval(olive$palmitic, 3)
-palmitoleic_class_data <- cut_interval(olive$palmitoleic, 3)
+linoleic_class_data <- cut_interval(olive$linoleic, 3,labels = c("low","medium","high"))
+palmitic_class_data <- cut_interval(olive$palmitic, 3,labels = c("low","medium","high"))
+palmitoleic_class_data <-as.numeric( cut_interval(olive$palmitoleic, 3,labels = c("low","medium","high")))
 
 graph8 <- ggplot(data = olive,
                  aes(x = oleic,
                      y = eicosenoic,
                      color = linoleic_class_data,
                      shape = palmitic_class_data,
-                     size = as.numeric(palmitoleic_class_data))) +
+                     size = palmitoleic_class_data)) +
               labs(title ="1.8 | oleic vs eicosenoic",
                    x = "oleic",
                    y= "eicosenoic")+
                   geom_point()
 graph8
+
+
 ```
 
+
+
+The plot has over plotting which intern makes it difficult to see overlapping data points and it has too many classes to understand,due to overlaping issues perception of the data is confusing and this can lead wrong data interpretation.
+
+The three classes should be plotted on different plot in order to get complete analysis of the data.
 ## 1.5)
 
 ````{r question5}
@@ -193,20 +209,26 @@ graph9 <- ggplot(data = olive,
 graph9
 ``` 
 
-## 1.6)
+Because of the variation in the data points color spectrum and cluster forming, and clear visual patterns as we can interpret the plot to some degree,
+This approach is much better than plot 1.8 since we have less classes to grasp, region-based visual trends make this approach stronger
+Even this plot has some issue of over plotting. 
 
+from perspective of Treisman's theory our cognitive attention is limited by small amount of time ,where we can distinguish the change in color in similar sets of colors ,and accordingly we can easily identify the dark shaded region of the plot which has more color is accumulated.
+## 1.6)
+ 
 ```{r question 6, warning=FALSE}
 graph10 <- plot_ly(data = olive, 
                    type='pie',
                    labels = ~Area,
                    values = olive,
                    showlegend = FALSE,
-                   showlabels = FALSE
+                   showlabels = FALSE,
+                   textinfo = 'none'
                    )
+
 graph10
 ```
-As there are no labels and on the pie chart it is hard to understand the represtation of the plot 
-and due to its  interaction ability it is not suitable for static reports.
+As there are no labels and on the pie chart it is hard to understand the representation of the plot,As we cannot identify the angle differences with out labels this pie chart can be mislead portions of the chart,these plots are not ideal for static reports.
 
 
 ## 1.7)
@@ -218,8 +240,11 @@ graph11 <- ggplot(data = olive,
                   geom_point() +
                   geom_density_2d()+
                   labs(title ="1.11 | 2d density plot of lenoleic and eicosenoic")
+
 graph11
 ```
+
+Contour lines does not describe particular relations of the plot points as we do not know the densities of the plot points ,when compared to the similar plot point we can see visual representation of regions divided into classes which gives more insight into the regional data than the 2d density plot.
 
 # Assignment 2
 

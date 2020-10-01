@@ -254,7 +254,6 @@ various counties. What kind of trend can you see and how can this be interpreted
 think that linear regression would be suitable to model this dependence?
 
 ```{r surface}
-surface <- as.matrix(SCB_Incomes_2016[2:4])
 plot_ly(z = as.matrix(SCB_Incomes_2016[2:4])) %>%
   add_surface()
 ```
