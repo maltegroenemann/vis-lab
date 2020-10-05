@@ -1,0 +1,74 @@
+---
+title: "Lab 5"
+author: "konda varshith"
+date: "02/10/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pres sure}
+library(wordcloud2)
+library(dplyr)
+library(ggplot2)
+library(corpus)
+library(tm)
+
+Five <- read.csv("Five.txt",header = TRUE,sep = '\n',encoding = "UTF-8")
+names(Five) = ("review")
+Corpus_five <- Corpus(VectorSource(Five))
+
+Corpus_five[1][1]
+
+Corpus_five <- tm_map(Corpus_five, content_transformer(tolower))
+Corpus_five<- tm_map(Corpus_five,removeWords,stopwords("English"))
+Corpus_five <- tm_map(Corpus_five,removeNumbers)
+Corpus_five <- tm_map(Corpus_five,removePunctuation)
+Corpus_five <- tm_map(Corpus_five,stripWhitespace)
+
+
+Five_tdm <- TermDocumentMatrix(Corpus_five)
+Five_matrix <- as.matrix(Five_tdm)
+FS <- sort(rowSums(Five_matrix),decreasing = TRUE)
+Five_dataframe <- data.frame(word = names(FS),freq = FS)
+
+wordcloud2(data = Five_dataframe)
+```
+
+```{R, OneTwo wordcloud }
+OneTwo <- read.csv("OneTwo.txt",sep = '\n')
+names(OneTwo)<- ("reviws")
+
+Corpus_OneTwo <- Corpus(VectorSource(OneTwo))
+Corpus_OneTwo <- tm_map(Corpus_OneTwo,content_transformer(tolower))
+Corpus_OneTwo <- tm_map(Corpus_OneTwo,removeWords,stopwords("english"))
+Corpus_OneTwo<- tm_map(Corpus_OneTwo,removeNumbers)
+Corpus_OneTwo<- tm_map(Corpus_OneTwo,removePunctuation)
+Corpus_OneTwo<- tm_map(Corpus_OneTwo,stripWhitespace)
+
+
+OneTwo_tdm <- TermDocumentMatrix(Corpus_OneTwo)
+OneTwo_matrix <- as.matrix(OneTwo_tdm)
+OneTwo_fs <- sort(rowSums(OneTwo_matrix) ,decreasing = TRUE)
+OneTwo_dataframe <- data.frame(word = names(OneTwo_fs),freq = OneTwo_fs)
+p <- wordcloud2(data = OneTwo_dataframe)
+p
+```
