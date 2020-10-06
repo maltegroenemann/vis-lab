@@ -45,19 +45,20 @@ FS <- sort(rowSums(Five_matrix),decreasing = TRUE)
 Five_dataframe <- data.frame(word = names(FS),freq = FS)
 
 wordcloud2(data = Five_dataframe)
-
-
 ```
 
 
+
+
+
 ### Wordcloud of the Un satisfied customer Reviews.
-```{r,q2,warning=FALSE }
+```{r,warning=FALSE }
 OneTwo <- read.csv("OneTwo.txt",sep = '\n')
 names(OneTwo)<- ("reviws")
 
 Corpus_OneTwo <- Corpus(VectorSource(OneTwo))
 Corpus_OneTwo <- tm_map(Corpus_OneTwo,content_transformer(tolower))
-Corpus_OneTwo <- tm_map(Corpus_OneTwo,removeWords,stopwords("english"))
+Corpus_OneTwo <- tm_map(Corpus_OneTwo,removeWords,stopwords("English"))
 Corpus_OneTwo<- tm_map(Corpus_OneTwo,removeNumbers)
 Corpus_OneTwo<- tm_map(Corpus_OneTwo,removePunctuation)
 Corpus_OneTwo<- tm_map(Corpus_OneTwo,stripWhitespace)
@@ -67,20 +68,20 @@ OneTwo_tdm <- TermDocumentMatrix(Corpus_OneTwo)
 OneTwo_matrix <- as.matrix(OneTwo_tdm)
 OneTwo_fs <- sort(rowSums(OneTwo_matrix) ,decreasing = TRUE)
 OneTwo_dataframe <- data.frame(word = names(OneTwo_fs),freq = OneTwo_fs)
-wordcloud2(data = OneTwo_dataframe)
-
+p1 <- wordcloud2(data = OneTwo_dataframe)
+p1
 ```
 
 
 After removing stopwords, punctuation we created and data frame to get know the frequency of the words in both the reviews and created an wordcloud.
 
-from the Word cloud it is observed that many customers frequecy of the word "watch " was high. 
+from the Word cloud it is observed that many customers frequency of the word "watch " was high. 
 
-In satisfied customer reviews the words "great" , "one" , "time" were also occured in high number.
+In satisfied customer reviews the words "great" , "one" , "time" were also occurred in high number.
 
-In un satisfied customer reviews the words "amazon" , "casio","time" occured in high number as well.
+In un satisfied customer reviews the words "amazon" , "casio","time" occurred in high number as well.
 
-Remaining words aooeared negkigible times.
+Remaining words appeared negligible times.
 
 ## Question 2 
 
