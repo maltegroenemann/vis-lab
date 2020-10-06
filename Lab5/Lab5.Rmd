@@ -54,7 +54,8 @@ FS <- sort(rowSums(Five_matrix),
 Five_dataframe <- data.frame(word = names(FS),
                              freq = FS)
 
-wordcloud2(data = Five_dataframe)
+p1 <- wordcloud2(data = Five_dataframe)
+include_graphics("satisfied.png")
 ```
 
 
@@ -86,7 +87,7 @@ OneTwo_fs <- sort(rowSums(OneTwo_matrix),
                   decreasing = TRUE)
 OneTwo_dataframe <- data.frame(word = names(OneTwo_fs),
                                freq = OneTwo_fs)
-p1 <- wordcloud2(data = OneTwo_dataframe)
+p2 <- wordcloud2(data = OneTwo_dataframe)
 include_graphics("un-satisfied.png")
 ```
 
@@ -402,3 +403,10 @@ The brushed images the interpretations in Assignment 2 are based on are appended
 include_graphics("2_2.png")
 include_graphics("2_3.png")
 ```
+
+
+
+
+# Contributions
+
+The main responsibility for Assignment 1 obliged to Varshith Konda while for Assignment 2 it was the responsibility of Malte Grönemann.
