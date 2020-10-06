@@ -54,7 +54,7 @@ FS <- sort(rowSums(Five_matrix),
 Five_dataframe <- data.frame(word = names(FS),
                              freq = FS)
 
-#wordcloud2(data = Five_dataframe)
+wordcloud2(data = Five_dataframe)
 ```
 
 
@@ -86,7 +86,8 @@ OneTwo_fs <- sort(rowSums(OneTwo_matrix),
                   decreasing = TRUE)
 OneTwo_dataframe <- data.frame(word = names(OneTwo_fs),
                                freq = OneTwo_fs)
-#wordcloud2(data = OneTwo_dataframe)
+p1 <- wordcloud2(data = OneTwo_dataframe)
+include_graphics("un-satisfied.png")
 ```
 
 After removing stopwords and punctuation we created and data frame to get know the frequency of the words in both the reviews and created an wordcloud.
