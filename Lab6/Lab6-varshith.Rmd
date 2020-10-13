@@ -1,0 +1,240 @@
+---
+title: "Lab6- varshith"
+author: "konda varshith"
+date: "10/10/2020"
+output: html_document
+---
+
+
+# Assignment 1 
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(visNetwork)
+library(igraph)
+library(seriation)
+library(plotly)
+library(knitr)
+```
+
+
+## Loading the data from data sets.
+
+```{r}
+train_data <- read.table("trainData.dat")
+names(train_data) <- c("from","to","weight")
+train_meta <- read.table("trainMeta.dat")
+names(train_meta) <- c("name","bombing_group")
+```
+
+## 1.1
+
+1. Use visNetwork package to plot the graph in which
+
+   a) you use strength of links variable
+
+   b) nodes are colored by Bombing Group.
+   
+   c) size of nodes is proportional to the number of connections ( function strength() from
+      IGRAPH might be useful here)
+  
+   d) you use a layout that optimizes repulsion forces (visPhysics(solver=”repulsion”)).
+   
+   e) all nodes that are connected to a currently selected node by a path of length one are
+      highlighted (visOptions() from visNetwork might be useful here)
+
+```{r,warning=FALSE}
+
+   train_meta = data.frame(train_meta , id = 1:70)
+   
+   nodes = data.frame(
+           id = train_meta$id,
+          label = train_meta$name
+          )
+  
+  
+   edges <- as.data.frame(train_data)
+   edges$width = edges$weight
+  
+  net1 <- graph_from_data_frame(d=edges, vertices=nodes, directed=T)
+    
+  f <- strength(net1)
+      
+   
+  nodes$value = f
+  
+  nodes$group = train_meta$bombing_group
+      
+      plot1  <- visNetwork(nodes,edges,main = "1.1 Network graph")%>%
+            visNodes()%>%
+            visEdges(arrows = "to")%>%
+            visPhysics(solver = "repulsion")%>%
+            visLegend()%>%
+            visOptions(highlightNearest = list(enabled = TRUE , algorithm = "all"))%>%
+        visIgraphLayout()
+     plot1
+
+
+```   
+
+
+## 1.2
+
+Add a functionality to the plot in step 1 that highlights all nodes that are connected to the
+selected node by a path of length one or two. Check some amount of the largest nodes and
+comment which individual has the best opportunity to spread the information in the 
+network. Read some information about this person in Google and present your findings.
+
+
+
+```{r ,warning=FALSE}
+     plot2  <- visNetwork(nodes,edges,main = "1.2 Network graph with path length of 2")%>%
+               visEdges(arrows = "to")%>%
+               visPhysics(solver = "repulsion")%>%
+               visLegend()%>%
+               visOptions(highlightNearest = list(enabled = TRUE , degree = 2,algorithm = "all"),nodesIdSelection = T)%>%
+                visIgraphLayout()
+    
+
+     plot2
+
+```
+
+
+In this plot we added an functionality such that it highlights all nodes that are connected to the
+selected node by a path of length one or two.
+
+
+While analysing the network graph linking the terrorists who have placed the bombings and persons belonging to the other terrorists who have not participated in the bombing but were linked to those ,who have done it.
+
+Mohamed Chaoui and Jamal Zougam from the group who have placed the explosives have the highest connections in the network.
+
+Imad Edin barakat and amer azizi from the group who have not placed the explosives have the highest connections in the network.
+
+Jamal Zougam and Imad Edin barakat have the highest amount of the opportunity to spread the information across the network.
+
+
+### Imad Eddin Barakat Yarkas (Abu Dahdah)
+```{r , echo=FALSE}
+
+include_graphics(path = "images/abu.jpg")
+
+```
+
+
+
+
+
+Imad Eddin Barakat Yarkas also known as Abu Dahdah is a Syrian-born Spaniard sentenced to a 27-year prison term in Spain for his part in the September 11, 2001 attacks and for his membership in the banned terrorist organization al-Qaeda.
+
+
+al-Qaeda is an militant organization established in 1988 by Osama-bin-laden.
+
+
+intelligence officer Rafael Gomez Menor  reported to the Spanish parliament that the Madrid train bombings in 2004 had been "Abu Dahdah, without any doubt". It was alleged that he helped direct the operations during prison visits from Walid al-Masri.
+
+The sentence was later reduced by the Supreme Court, which ruled that the conspiracy charges were unproven. His conviction for belonging to a terrorist organization was upheld but not that for murder, due to insufficient evidence. The U.S. includes him on its blacklist of Al Qaeda terrorists, since it holds that Abu Dahdah knew of the plans for the September 11 attacks and was fundamentally involved.
+
+
+
+### Jamal Zougam
+```{r,echo=FALSE}
+include_graphics(path = "images/jamal.jpeg")
+```
+
+Zougam owned a mobile phone shop in the Lavapiés neighborhood in Madrid called Nuevo Siglo (The New Century). He is believed to be the person who sold telephones which were used to detonate the bombs in the attack. He also reportedly helped construct the bombs and was one of the first to be arrested.
+
+
+## 1.3
+
+   Compute clusters by optimizing edge betweenness and visualize the resulting network.
+   Comment whether the clusters you identified manually in step 1 were also discovered by this   
+   clustering method.
+   
+```{r,warning = FALSE}
+nodes1<-nodes
+net <- graph_from_data_frame(d=edges, vertices=nodes, directed=F)
+ceb <- cluster_edge_betweenness(net) 
+nodes1$group=ceb$membership
+visNetwork(nodes1,edges,main = "1.3 Network graph using Edge-Betweeness")%>%visIgraphLayout()
+
+```
+
+
+In plot 1.3 the clustering of nodes were formed by using the cluster_edge_betweeness frunction from the Igraph package.This functionality has automatically divided the network into clusters which we have identified manually in the plot 1.1
+
+In the Network plot it is observed that by adding edge betweeness functionality four major node clusters were formed
+
+
+## 1.4 
+
+  Use adjacency matrix representation to perform a permutation by Hierarchical Clustering
+ (HC) seriation method and visualize the graph as a heatmap. Find the most pronounced
+ cluster and comment whether this cluster was discovered in steps 1 or 3. 
+
+
+```{r,warning = FALSE}
+net2 <- get.adjacency(net, attr="weight", sparse=F)
+colnames(net2) <- train_meta$name
+rownames(net2) <- train_meta$name
+
+dist_net<-dist(net2)
+
+
+net1_order1<-seriate(dist_net, "HC")
+neto1<-get_order(net1_order1)
+
+matrix_net<-net2[neto1,neto1]
+
+
+
+plot_ly(z=~matrix_net, x=~colnames(matrix_net), 
+        y=~rownames(matrix_net), type="heatmap")%>%
+         layout(title = "1.4 Heat-map using Adjacency matrix")
+```
+
+#### **The most pronounced cluster in the heat-map consists the names of** 
+
+Amer aizi
+
+Mohamed chaoui
+
+Imad Eddin barakat 
+
+Jamal Zougam
+
+Ramzi binalshibh
+
+Mohammad atta
+
+Shakur
+
+Abu Musad Alsakaoui
+
+Said Bahaji 
+
+Galeb kalaje
+
+Mohamed belfatmi
+
+
+#### **These strength of ties were interpreted from the cluster** 
+
+
+Amer aizi , imad Eddin barakat, Jamal Zougam were Co-participation in previous terrorist Attacks (Sept 11, Casablanca).
+
+
+Amer aizi , imad Eddin barakat, Jamal Zougam,mohamed chaoui were linked from Co-participation in training camps and/or wars.
+
+
+Amer aizi ,mohamed chaoui had ties to al-Qaeda and osama bin laden.
+
+
+**Edge_betweeness  function uses "weigths" to calculate weighted edge betweeness, This means that edges are interpreted as distances, not as connection strengths.Hence it is not possible to unterstand the strength of ties between the individuals.**
+
+
+
+
+
+
