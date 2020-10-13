@@ -68,8 +68,8 @@ OneTwo_tdm <- TermDocumentMatrix(Corpus_OneTwo)
 OneTwo_matrix <- as.matrix(OneTwo_tdm)
 OneTwo_fs <- sort(rowSums(OneTwo_matrix) ,decreasing = TRUE)
 OneTwo_dataframe <- data.frame(word = names(OneTwo_fs),freq = OneTwo_fs)
-p1 <- wordcloud2(data = OneTwo_dataframe)
-p1
+wordcloud2(data = OneTwo_dataframe)
+incl
 ```
 
 
