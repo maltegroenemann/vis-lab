@@ -1,0 +1,340 @@
+---
+title: "Visualisation - Lab 6 - Group A7"
+author: "Malte Grönemann and Varshith Konda"
+date: "12/10/2020"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+
+library(dplyr)
+library(tidyr)
+library(visNetwork)
+library(igraph)
+library(seriation)
+library(plotly)
+library(tourr)
+library(knitr)
+```
+
+# Assignment 1
+
+## 1.1
+
+Use visNetwork package to plot the graph in which
+- a. you use strength of links variable
+- b. nodes are colored by Bombing Group.
+- c. size of nodes is proportional to the number of connections ( function strength() from
+IGRAPH might be useful here)
+- d. you use a layout that optimizes repulsion forces (visPhysics(solver=”repulsion”)).
+- e. all nodes that are connected to a currently selected node by a path of length one are
+highlighted (visOptions() from visNetwork might be useful here)
+
+Analyse the obtained network, in particular describe which clusters you see in the
+network.
+
+```{r network}
+links <- read.table("trainData.dat", quote="\"", comment.char="", stringsAsFactors=FALSE)
+colnames(links) <- c("from", "to", "width")
+# Every link exists twice: from 1 to 2 and from 2 to 1. 
+# We delete them to reduce redundant lies in the plot
+links$filter <- ifelse(links$from < links$to, 
+                       paste(links$from, links$to), paste(links$to, links$from))
+links <- links %>% distinct(filter, .keep_all = TRUE)
+links <- links %>% select(-filter)
+
+nodes <- read.table("trainMeta.dat", quote="\"", comment.char="", stringsAsFactors=FALSE)
+colnames(nodes) <- c("label", "group")
+nodes <- data.frame(id = c(1:70), nodes)
+nodes$size <- strength(graph_from_data_frame(links, vertices = nodes))
+
+train_network <- visNetwork(nodes = nodes, edges = links, 
+                            main = "Suspects of the Madrid 2004 Bombings") %>%
+  visPhysics(solver = "repulsion") %>%
+  visOptions(highlightNearest = TRUE)
+train_network
+```
+
+The suspects `r length(nodes$label[nodes$group==1])` that actually were involved in the bombings (denoted in blue) are not all interconnected. Actually, some terrorists involved in the bombings are only indirectly connected via uninvolved others. However, there are two very central people that have the most connections in this network and are also connected to most other people involved and highly connected uninvolved others. These are Jamal Zougam and Mohamed Chaoui.
+
+There is a close-knit subnetwork of uninvolved suspects that are only connected to the rest of the suspects by Jose Emilio Suarez and especially Semaan Gaby Eid. The only connection to an actually involved suspect is the one between Semaan Gaby Eid and Jamal Ahmidan. There is a large inter-connected group of uninvolved centered around Imad Eddin Barakat that maintains also close ties with the most connected convicts Jamal Zougam, Mohamed Chaoui and also Said Berrak.
+These three are the gatekeepers between this network and another higher-knit group from which most convicts come from. There also exist smaller subnetworks of overwhelmingly uninvolved suspects and suspects that are not related to anyone else. 
+
+## 1.2 
+
+Add a functionality to the plot in step 1 that highlights all nodes that are connected to the
+selected node by a path of length one or two. Check some amount of the largest nodes and
+comment which individual has the best opportunity to spread the information in the
+network. Read some information about this person in Google and present your findings.
+
+```{r pathlength}
+train_network <- train_network %>%
+  visOptions(highlightNearest = list(enabled = T, degree = 2))
+train_network
+```
+
+Mohamed Chaoui and Jamal Zougam from the group who have placed the explosives have the highest connections in the network.
+
+Imad Edin Barakat and Amer Azizi have the highest connections in the network from the group who have not placed the explosives.
+
+Jamal Zougam and Imad Edin Barakat have the highest amount of the opportunity to spread the information across the network.
+
+### Imad Eddin Barakat Yarkas (Abu Dahdah)
+```{r , echo=FALSE}
+include_graphics(path = "images/abu.jpg")
+```
+
+Imad Eddin Barakat Yarkas also known as Abu Dahdah is a Syrian-born Spaniard sentenced to a 27-year prison term in Spain for his part in the September 11, 2001 attacks and for his membership in the banned terrorist organization al-Qaeda.
+
+al-Qaeda is an militant organization established in 1988 by Osama-bin-laden.
+
+Intelligence officer Rafael Gomez Menor reported to the Spanish parliament that the Madrid train bombings in 2004 had been "Abu Dahdah, without any doubt". It was alleged that he helped direct the operations during prison visits from Walid al-Masri.
+
+The sentence was later reduced by the Supreme Court, which ruled that the conspiracy charges were unproven. His conviction for belonging to a terrorist organization was upheld but not that for murder, due to insufficient evidence. The U.S. includes him on its blacklist of Al Qaeda terrorists, since it holds that Abu Dahdah knew of the plans for the September 11 attacks and was fundamentally involved.
+
+### Jamal Zougam
+```{r,echo=FALSE}
+include_graphics(path = "images/jamal.jpeg")
+```
+
+Zougam owned a mobile phone shop in the Lavapiés neighborhood in Madrid called Nuevo Siglo (The New Century). He is believed to be the person who sold telephones which were used to detonate the bombs in the attack. He also reportedly helped construct the bombs and was one of the first to be arrested.
+
+## 1.3
+
+   Compute clusters by optimizing edge betweenness and visualize the resulting network.
+   Comment whether the clusters you identified manually in step 1 were also discovered by this   
+   clustering method.
+   
+```{r,warning = FALSE}
+nodes1 <- nodes
+net <- graph_from_data_frame(d = links, vertices = nodes, directed = F)
+ceb <- cluster_edge_betweenness(net) 
+nodes1$group <- ceb$membership
+visNetwork(nodes1, links, 
+           main = "1.3 Network graph using Edge-Betweeness") %>%
+  visIgraphLayout()
+```
+
+In plot 1.3 the clustering of nodes were formed by using the cluster_edge_betweeness frunction from the Igraph package.This functionality has automatically divided the network into clusters which we have identified manually in the plot 1.1
+
+In the Network plot it is observed that by adding edge betweeneSss functionality four major node clusters were formed.Along with four clusters found in plot 1.1 we can identify three more minute clusters in network.
+
+Due to the different colors for each clusters, it is easy to identify the clusters with **pre  attentive perception **
+
+## 1.4 
+
+Use adjacency matrix representation to perform a permutation by Hierarchical Clustering
+(HC) seriation method and visualize the graph as a heatmap. Find the most pronounced
+cluster and comment whether this cluster was discovered in steps 1 or 3. 
+
+
+```{r,warning = FALSE}
+net2 <- get.adjacency(net, attr="width", sparse=F)
+colnames(net2) <- nodes$label
+rownames(net2) <- nodes$label
+
+dist_net <- dist(net2)
+
+net1_order1 <- seriate(dist_net, "HC")
+neto1 <- get_order(net1_order1)
+
+matrix_net<-net2[neto1,neto1]
+
+plot_ly(z = ~matrix_net, 
+        x = ~colnames(matrix_net), 
+        y = ~rownames(matrix_net), 
+        type="heatmap") %>%
+  layout(title = "1.4 Heat-map using Adjacency matrix")
+```
+
+The most pronounced cluster in the heat-map consists of Amer aizi, Mohamed Chaoui, Imad Eddin Barakat, Jamal Zougam, Ramzi Binalshibh, Mohammad Atta, Shakur, Abu Musad Alsakaoui, Said Bahaji, Galeb Kalaje and Mohamed Belfatmi.
+
+
+#### **These strength of ties were interpreted from the cluster** 
+
+Amer Aizi , Imad Eddin Barakat, Jamal Zougam were Co-participation in previous terrorist Attacks (Sept 11, Casablanca).They and Mohamed Chaoui were linked from co-participation in training camps and/or wars. Amer Aizi, Mohamed Chaoui had ties to al-Qaeda and Osama bin Laden.
+
+**Edge_betweeness  function uses "weigths" to calculate weighted edge betweeness. This means that edges are interpreted as distances, not as connection strengths. Hence it is not possible to unterstand the strength of ties between the individuals.**
+
+# Assignment 2
+
+The data file Oilcoal.csv provides time series about the consumption of oil (million tonnes) and coal
+(million tonnes oil equivalents) in China, India, Japan, US, Brazil, UK, Germany and France. Marker
+size shows how large a country is (1 for China and the US, 0.5 for all other countries).
+
+```{r data2}
+Oilcoal <- read.csv2("Oilcoal.csv", stringsAsFactors=FALSE)
+```
+
+## 2.1
+
+Visualize data in Plotly as an animated bubble chart of Coal versus Oil in which the bubble size
+corresponds to the country size. List several noteworthy features of the investigated animation.
+
+```{r bubble}
+bubble <- plot_ly(data = Oilcoal,
+                  x = ~Oil,
+                  y = ~Coal,
+                  frame = ~Year,
+                  size = ~Marker.size,
+                  text = ~Country,
+                  type = 'scatter', 
+                  mode = 'markers') %>%
+  layout(title = "Oil and Coal Consumption by Country over Time") %>%
+  hide_legend()
+bubble
+```
+
+At the start in 1965, the US has both the highest consumption of coal and oil but is a large outlier in oil consumption. The consumption, especially of oil, of the US rises at first and then fluctuates a bit while still being the largest consumer of fossil fuels by for. 
+
+The second large nation, China, has at first the second largest coal consumption but is within the range of the smaller countries in terms of oil consumption. With time, fossil fuel consumption in China rises and coal consumption overtakes that from the US and change in consumption speeds up especially in the 2000. 
+
+Japan has always a higher oil consumption than the other smaller countries while in terms of coal consumption, Germany and later India are the highest consumers out of the smaller countries. But all smaller countries have massively lower consumption levels than the US and than China since 1990. Compared to the development of the large nations, their consumption changes very little.
+
+## 2.2
+
+Find two countries that had similar motion patterns and create a motion chart including these
+countries only. Try to find historical facts that could explain some of the sudden changes in the
+animation behavior.
+
+Germany and the UK, as two of the smaller countries, have quite similar movements in the animation.
+
+In the UK in 1970, 91% of energy came from oil and coal. The discovery of gas beneath the North Sea meant that by 1980 22% of the UK’s energy came from gas. The use of nuclear power increased during the 1990s. Both lead to less dependence on oil and coal. However, a decline in reserves of oil and gas now means the UK is reliant on imported fossil fuels.
+
+Germany was and still is one of the major coal countries. This is not surprising because Germany is also a major producer of coal. Lignite is extracted in the extreme western and eastern parts of the country and typically burnt in nearby power plants. Although there is some domestic production, most power plants burning bituminous coal operate on imported material. However, Germany also used nuclear power which rised to higher levels in the mid-80s and remained constant until a starting decline in the 2000s. With nuclear power, coal consumption slightly reduced. In the 2000s, renewable energy sources gained traction further reducing the dependence on coal and oil.
+
+The larger and more short-term fluctuations in oil consumption is largely determined by the international oil price. This is for example visible in 1973 and 1979. In 1973, Arab oil producers caused the "first oil crisis" to sanction some Western countries for their support of Israel in the Yom Kippur War. In 1979, the "second oil crisis" came about because of a production drop in Iran during the revolution. This price shock continued to have an impact on oil prices until the mid-80s.
+
+## 2.3
+
+Compute a new column that shows the proportion of fuel consumption related to oil. One could think of visualizing the proportions by means of an animated bar charts; however smooth transitions between bars are not yet implemented in Plotly. Thus, use the following workaround:
+- a. Create a new data frame that for each year and country contains two rows: one that shows Oil_p and another row containing 0 in Oil_p column.
+- b. Make an animated line plot of Oil_p versus Country where you group lines by Country and make them thicker.
+
+Perform an analysis of this animation. What are the advantages of visualizing data in this way
+compared to the animated bubble chart? What are the disadvantages?
+
+```{r aniline}
+Oilcoal <- Oilcoal %>%
+  mutate(Oil_p = (Oil / (Oil + Coal)) * 100)
+
+Oilcoal2 <- Oilcoal %>%
+  select(Year, Country) %>%
+  mutate(Oil_p = 0)
+Oilcoal2 <- Oilcoal2 %>%
+  bind_rows(Oilcoal) %>%
+  select(Year, Country, Oil_p)
+
+aniline <- plot_ly(data = Oilcoal2,
+                   x = ~Country,
+                   y = ~Oil_p,
+                   frame = ~Year) %>%
+  layout(title = "Consumption Proportion of Oil by Country over Time") %>%
+  hide_legend()
+aniline
+```
+
+The plot shows the proportion of oil consumption of the total consumption of coal and oil for eight different countries from 1965 to 2009. We can observe that the proportion of oil in the total consumption increases for most countries in the 60s and 70s and slightly decreases afterwards. The relations between the countries are apart from some fluctuations relatively similar over time. This shows that the different countries have stable and distinct "resource regimes". Brazil, France, Japan, the US and later joined by the UK have high dependencies on oil. India and China consume primarily coal while Germany is typically in the middle but shows similar levels of oil proportion as Japan, the US and UK.
+
+This plot directs the focus towards the proportion oil constitutes of the two fossil ruels considered here. Although this information and the resulting regimes are somewhat visible in the previous bubble plot, it is less obvious and harder to estimate the relative sizes of two axes at the same time. Simoultaneously, the attention in the bubble plot is mainly drawn towards the absolute developments. While this plot is therefore better suited to establish this relationship between the fuels, it loses the absolute dimension completely on which the countries differ actually quite sharply and on which considerable developments take place over time. In this plot, the similarity of most smaller countries in their absolute consumption and the extreme outlier position of the US and later China are completely invisible.
+
+## 2.4
+
+Repeat the previous step but use “elastic” transition (easing). Which advantages and
+disadvantages can you see with this animation? Use information in https://easings.net/ to
+support your arguments.
+
+```{r easing}
+aniline <- aniline %>%
+  animation_opts(easing = "elastic")
+aniline
+```
+
+The "elastic" transition "bounces" somewhat between the different states. First it goes a little in the opposite direct to the change from the current position and overshoots the new value to then settle. This has the advantage of showing that we have discrete data and smoother transitions illude a more continuous feel. Also, since the overshoots are proportional to the change, it directs the attention towards places in the graph where a big change happens and it does this before the change actually happens. But it has a way more nervous feel to it than the smoother transition before.
+
+## 2.5
+
+Use Plotly to create a Grand 2D-tour visualizing Coal consumption and in which observations are
+years and variables are different countries. Find a projection with the most compact and well-
+separated clusters. Do clusters correspond to different Year ranges? Which variable or variables
+has the largest contribution to this projection? (look for long axes) How can this be interpreted?
+(Hint: make a time series plot for the Coal consumption of this or those countries)
+- Use the following options:
+  - set.seed(12345) before calling new_tour()
+  - use steps <- c(0, rep(1/15, 200))
+  
+```{r tour}
+mat <- Oilcoal %>% 
+  select(Year, Country, Coal) %>%
+  spread(Country, Coal)
+rownames(mat) <- mat$Year
+mat <- mat %>% select(-Year)
+mat <- rescale(mat)
+
+set.seed(12345)
+tour <- new_tour(mat, grand_tour(), NULL)
+
+steps <- c(0, rep(1/3, 200))
+Projs <- lapply(steps, function(step_size){  
+  step <- tour(step_size)
+  if(is.null(step)) {
+    .GlobalEnv$tour <- new_tour(mat, guided_tour(cmass), NULL)
+    step <- tour(step_size)
+  }
+  step
+})
+
+# projection of each observation
+tour_dat <- function(i) {
+  step <- Projs[[i]]
+  proj <- center(mat %*% step$proj)
+  data.frame(x = proj[,1], y = proj[,2], state = rownames(mat))
+}
+
+# projection of each variable's axis
+proj_dat <- function(i) {
+  step <- Projs[[i]]
+  data.frame(
+    x = step$proj[,1], y = step$proj[,2], variable = colnames(mat)
+)}
+
+stepz <- cumsum(steps)
+
+# tidy version of tour data
+tour_dats <- lapply(1:length(steps), tour_dat)
+tour_datz <- Map(function(x, y) cbind(x, step = y), tour_dats, stepz)
+tour_dat <- dplyr::bind_rows(tour_datz)
+
+# tidy version of tour projection data
+proj_dats <- lapply(1:length(steps), proj_dat)
+proj_datz <- Map(function(x, y) cbind(x, step = y), proj_dats, stepz)
+proj_dat <- dplyr::bind_rows(proj_datz)
+
+ax <- list(
+  title = "", showticklabels = FALSE,
+  zeroline = FALSE, showgrid = FALSE,
+  range = c(-1.1, 1.1)
+)
+
+# for nicely formatted slider labels
+options(digits = 3)
+tour_dat <- highlight_key(tour_dat, ~state, group = "A")
+tour <- proj_dat %>%
+  plot_ly(x = ~x, y = ~y, frame = ~step, color = I("black")) %>%
+  add_segments(xend = 0, yend = 0, color = I("gray80")) %>%
+  add_text(text = ~variable) %>%
+  add_markers(data = tour_dat, text = ~state, ids = ~state, hoverinfo = "text") %>%
+  layout(xaxis = ax, yaxis = ax) %>% hide_legend()
+
+tour
+```
+
+In all honesty, I do not know what I am supposed to see in such a tour.
+
+# Contributions
+
+The main responsibility lied with Varshith Konda for the first assignment. The second assignment was done by Malte Grönemann.
