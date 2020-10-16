@@ -249,6 +249,7 @@ Contour lines does not describe particular relations of the plot points as we do
 # Assignment 2
 
 ## 2.1)
+
 The data set baseball-2016.xlsx contains information about the scores of baseball teams in USA in 2016, such as: Games won, Games Lost, Runs peer game, At bats, Runs, Hits, Doubles, Triples, Home runs, Runs batted in, Bases stolen, Time caught stealing, Bases on Balls, Strikeouts, Hits/At Bats, On Base Percentage, Slugging percentage, On base+Slugging, Total bases, Double plays grounded into, Times hit by pitch, Sacrifice hits, Sacrifice flies, Intentional base on balls, and Runners Left On Base.
 
 Load the file to R and answer whether it is reasonable to scale these data in order to perform
@@ -258,6 +259,7 @@ a multidimensional scaling (MDS).
 library(readxl)
 baseball <- read_excel("baseball-2016.xlsx")
 baseball_2 <- baseball[ , -(1:2)] # removing team name and league
+baseball_2 <- scale(baseball_2)
 
 anyNA(baseball_2)
 ```
@@ -291,7 +293,7 @@ plot_ly(data = baseball,
   layout(title = "NMDS of the Baseball 2016 Data")
 ```
 
-The plot shows no obvious pattern between the two leagues. However, the x-axis is better suited to differentiate between the leagues than the y-axis since more of the NL teams are on the positive side and vice versa for the AL teams. The outliers concerning this dimension are exclusively from the respective league. The most remote outlier are the Boston Red Sox but the Milwaukee Brewers, Los Angeles Angels, San Diego Padres and Philadelphia Phillies can be classified as outliers as well.
+The plot shows no clear-cut pattern between the two leagues. However, the y-axis is better suited to differentiate between the leagues than the x-axis since more of the NL teams are on the negative side and vice versa for the AL teams. The outliers concerning this dimension are exclusively from the respective league. The most positive outliers are the AL teams Baltimore Orioles and Tamba Bay Rays. In the negative part the NL teams Atlanta Braves, San Francisco Giants, Arizona Biamondbacks, Miami Marlins and Colorado Rockies are disconnected from the other observations. Concerning the y-axis, the AL team Boston Red Sox are an outlier on the negative side and the NL teams Philadelphia Phillies, Milwaukee Brewers and San Diego Padres are on the positive end.
 
 ## 2.3)
 
@@ -308,7 +310,7 @@ plot_ly(data = shepard,
          yaxis = list(title = "Distance after NMDS"))
 ```
 
-The Shepard plot makes a quite good impression with the points giving the Minkowski distances and the distances after the NMDS constituing an overall monotonically increasing line over the whole range. However, there are some points closer to the origin of the plot that deviate negatively from the line. As can be seen by the final conversion value in the output of the NMDS, the final Stress value, is at about 12.06% which is considered an acceptable value.
+The Shepard plot makes a quite good impression with the points giving the Minkowski distances and the distances after the NMDS constituing an overall monotonically increasing line over the whole range. However, there are some points closer to the origin of the plot that deviate negatively from the line. As can be seen by the final conversion value in the output of the NMDS, the final Stress value, is at about 15.9% which is considered an acceptable value.
 
 ## 2.4)
 
@@ -317,20 +319,20 @@ Produce series of scatterplots in which you plot the MDS variable that was the b
 ```{r scatters, message=FALSE, warning=FALSE}
 OPS <- plot_ly(data = baseball,
                x = ~OPS,
-               y = ~x,
+               y = ~y,
                type = "scatter",
                name = ~"On Base + Slugging")
-TB <- plot_ly(data = baseball,
-               x = ~TB,
-               y = ~x,
+RBI <- plot_ly(data = baseball,
+               x = ~RBI,
+               y = ~y,
                type = "scatter",
-              name = ~"Total Bases")
-subplot(OPS, TB) %>%
-  layout(title = "NMDS X-Dimension and most important Correlates",
-         yaxis = list(title = "NMDS X-Dimension"))
+              name = ~"Run Batted In")
+subplot(OPS, RBI) %>%
+  layout(title = "NMDS Y-Dimension and most important Correlates",
+         yaxis = list(title = "NMDS Y-Dimension"))
 ```
 
-I have selected the two variables with the highest correlations with the x-dimension of the presented NMDS. These are the sum of the percent of the time on base and the percent slugging (OPS, r = `r round(cor(baseball$OPS, baseball$x), digits = 2)`) and the total number of bases a player has gained with hits (TB, r = `r round(cor(baseball$TB, baseball$x), digits = 2)`). Both variables appear to be important statistics in baseball analysis and highly predictive of a teams success. For OPS, the ability of a player both to get on base and to hit for power, two important offensive skills, are represented. This measure is a composite measure of multiple key defining characteristics why its importance is not surprising. TB is part of OPS since TB divided by the number at bats gives the slugging percentage and is therefore related to one of the variables for offensive playing characteristics.
+I have selected two  of the variables with the highest correlations with the y-dimension of the presented NMDS. These are the sum of the percent of the time on base and the percent slugging (OPS, r = `r round(cor(baseball$OPS, baseball$x), digits = 2)`) and the runs a batter has made possible by his batting (RBI, r = `r round(cor(baseball$RBI, baseball$x), digits = 2)`). Both variables appear to be important statistics in baseball analysis and highly predictive of a teams success. For OPS, the ability of a player both to get on base and to hit for power, two important offensive skills, are represented. This measure is a composite measure of multiple key defining characteristics why its importance is not surprising. RBI credits a batter for making a play that allows a run to be scored.
 
 # Contributions
 
