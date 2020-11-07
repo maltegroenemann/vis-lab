@@ -2,7 +2,6 @@
 title: "Visualisation - Lab 2 - Group A7"
 author: "Malte Grönemann and Varshith Konda"
 output: html_document
-runtime: shiny
 ---
 
 ```{r setup, include=FALSE}
@@ -20,7 +19,7 @@ olive <- read.csv("olive.csv")
 
 The data contains the information about different contents of olive oils hailing from different regions in Italy, describing about different regions, areas and different acids present in them.
 
-## 1.1)
+## 1.1
 
 Create a scatterplot in Ggplot2 that shows dependence of Palmitic on Oleic in which
 observations are colored by Linoleic. Create also a similar scatter plot in which you divide
@@ -59,13 +58,15 @@ graph2 <- ggplot(data = olive,
 graph2
 ```
 
+
+
 From  plot 1.1 where the points are colored by the Linoleic  we observe that due to the close
 saturation of color ,it is difficult to differentiate between appropriate information from the plot. plot 1.2 is similar plot but colored by the dircretized varialble of Linoleic which indeed present us with more information regarding the distribution of the data.
 
 
 
 
-## 1.2)
+## 1.2
 Create scatterplots of Palmitic vs Oleic in which you map the discretized Linoleic with four
 classes to:
 a. Color
@@ -160,7 +161,7 @@ Both plots represent data in a similar way but  due to the pre-attentive mechani
 
 
 
-## 1.4)
+## 1.4
 
 Create a scatterplot of Oleic vs Eicosenoic in which color is defined by a discretized Linoleic (3
 classes), shape is defined by a discretized Palmitic (3 classes) and size is defined by a
@@ -193,7 +194,8 @@ graph8
 The plot has over plotting which intern makes it difficult to see overlapping data points and it has too many classes to understand,due to overlaping issues perception of the data is confusing and this can lead wrong data interpretation.
 
 The three classes should be plotted on different plot in order to get complete analysis of the data.
-## 1.5)
+
+## 1.5
 
 ````{r question5}
 graph9 <- ggplot(data = olive,
@@ -214,7 +216,8 @@ This approach is much better than plot 1.8 since we have less classes to grasp, 
 Even this plot has some issue of over plotting. 
 
 from perspective of Treisman's theory our cognitive attention is limited by small amount of time ,where we can distinguish the change in color in similar sets of colors ,and accordingly we can easily identify the dark shaded region of the plot which has more color is accumulated.
-## 1.6)
+
+## 1.6
  
 ```{r question 6, warning=FALSE}
 graph10 <- plot_ly(data = olive, 
@@ -231,7 +234,7 @@ graph10
 As there are no labels and on the pie chart it is hard to understand the representation of the plot,As we cannot identify the angle differences with out labels this pie chart can be mislead portions of the chart,these plots are not ideal for static reports.
 
 
-## 1.7)
+## 1.7
 
 ```{r question7}
 graph11 <- ggplot(data = olive,

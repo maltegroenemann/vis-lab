@@ -48,14 +48,19 @@ Corpus_five <- tm_map(Corpus_five,
                       stripWhitespace)
 
 Five_tdm <- TermDocumentMatrix(Corpus_five)
+
 Five_matrix <- as.matrix(Five_tdm) 
-FS <- sort(rowSums(Five_matrix),
-           decreasing = TRUE)
-Five_dataframe <- data.frame(word = names(FS),
-                             freq = FS)
+
+FS <- sort(rowSums(Five_matrix), decreasing = TRUE)
+
+Five_dataframe <- data.frame(word = names(FS), freq = FS)
 
 p1 <- wordcloud2(data = Five_dataframe)
+
+
+
 include_graphics("satisfied.png")
+
 ```
 
 
@@ -88,34 +93,46 @@ OneTwo_fs <- sort(rowSums(OneTwo_matrix),
 OneTwo_dataframe <- data.frame(word = names(OneTwo_fs),
                                freq = OneTwo_fs)
 p2 <- wordcloud2(data = OneTwo_dataframe)
+
 include_graphics("un-satisfied.png")
 ```
 
-After removing stopwords and punctuation we created and data frame to get know the frequency of the words in both the reviews and created an wordcloud.
 
-from the Word cloud it is observed that many customers frequecy of the word "watch " was high. 
+>After removing stopwords and punctuation we created and data frame to get know the frequency of the words in both the reviews and created an wordcloud.
 
-In satisfied customer reviews the words "great" , "one" , "time" were also occured in high number.
+>from the Word cloud it is observed that many customers frequecy of the word "watch " was high. 
 
-In un satisfied customer reviews the words "amazon" , "casio","time" occured in high number as well.
+>In satisfied customer reviews the words "great" , "one" , "time" were also occured in high number.
 
-Remaining words aooeared negligible times.
+>In un satisfied customer reviews the words "amazon" , "casio","time" occured in high number as well.
+
+>Remaining words appeared negligible times.
+
+
 
 ## 1.2
 
-Create the phrase nets for Five.Txt and One.Txt with connector words
-
-* am, is, are, was, were
-* a, the
-* at
-* of
-  where you choose ”Filter stopwords” option.
 
 ### 1. Phrases net for words (am, is, are, was, were) in Satisfied reviews.
 
-```{r echo = FALSE}
+```{r ,echo = FALSE}
 include_graphics("images/five(am, is, are, was, were).png")
 ```
+
+>By specifying connecting words in phrase-nets software we obtained a phrase net  as displayed above.
+
+>The connector  words were mostly prefixed by "Watch" , "i" and "it" and suffixed by "replacing" , "durable" , "comfortable" , "looking" ,"good".
+
+>from the observed prefix and suffix words these senteces are framed :- 
+
+* I was looking.
+* It is comfortable.
+* Watch is unbeatable.
+* I am glad.
+
+> "It" and "watch" had few common words such as "great" , "just", "exact".
+
+> Most words and sentences were moderately positive.
 
 ### 2. Phrases net for words (a , the ) in Satisfied reviews. 
 
@@ -123,11 +140,42 @@ include_graphics("images/five(am, is, are, was, were).png")
 include_graphics("images/five(a,the).png")
 ```
 
+>The connector  words were mostly prefixed by "Change" , "use" and "like" ,"got" and suffixed by "replacing" , "way" , "replacing" , "digital" ,"battery".
+
+>from the observed prefix and suffix words these senteces are framed :- 
+
+* Change the battery.
+* Use a digital.
+* Got a new one.
+* Replaced the battery.
+
+> "Use" and "Like" , "change"  has  word "battery".
+
+> "Battery" found  out to be the word has high number of occurences in phrase nets.
+
+> Many customers are facing issue with the battery of the watch.
+
+
+
 ### 3. Phrases net for words (at) in Satisfied reviews.
 
 ```{r echo = FALSE}
 include_graphics("images/five(at).png")
 ```
+
+>The connector  words were mostly prefixed by "one" , "watch" and "time" and suffixed by "costco" , "night" , "walmart".
+
+>from the observed prefix and suffix words these senteces are framed :- 
+
+* One at costco.
+* Watch at walmart.
+* Readable at night.
+* Time at home.
+* online at amazon.
+
+> with the stop word "at" , customers specified the retailer of their purchase.
+
+> customers purchased their watches mostly from Costco and Amazon.
 
 ### 4. Phrases net for words (of) in Satisfied reviews.
 
@@ -135,11 +183,32 @@ include_graphics("images/five(at).png")
 include_graphics("images/five(of).png")
 ```
 
+
+> From the connector word "of" the prefix and suffix words are more scattered into nuclear sentences, but the word "Years" id observed to have high frequency.
+
+>from the observed connection these senteces are framed :-
+
+* Weeks of use.
+* Track of time.
+* Years of service.
+* line of watches.
+
+
 ### 5. Phrases net for words (am, is, are, was, were) in Un-Satisfied reviews. 
 
 ```{r echo = FALSE}
 include_graphics("images/onetwo(am, is, are, was, were).png")
 ```
+
+>The connector  words were mostly prefixed by "watch" , "I" and suffixed by "great" , "hot" , "disappointed" , "digital" ,"battery".
+
+>from the observed prefix and suffix words these senteces are framed :- 
+
+* watch is defective.
+* I am disappointed
+* Watch was fantastic.
+
+> "Watch" found  out to be most the concentrated word in this phrase net.
 
 ### 6. Phrases net for words (at , the) in Un-Satisfied reviews. 
 
@@ -147,17 +216,56 @@ include_graphics("images/onetwo(am, is, are, was, were).png")
 include_graphics("images/onetwo(a, the).png")
 ```
 
+>The connector  words were mostly prefixed by "Like , "got" ,"watch" and suffixed by "battery" , "returned".
+
+>from the observed prefix and suffix words these senteces are framed :- 
+
+* Like the watch.
+* Replace the battery.
+
+> "Battery" found  out to be most the concentrated word in this phrase net.
+
+> Similar to satisfied customers , negative reviewa also concludes both group of customers are facing issues with the battery of the watch.
+
 ### 7. Phrases net for words (at) in Un-Satisfied reviews. 
 
 ```{r echo = FALSE}
 include_graphics("images/onetwo(at).png")
 ```
 
+>The connector  words were mostly prefixed by "lousy" , "glow" and "stop" and suffixed by "keeping" , "night".
+
+>from the observed prefix and suffix words these senteces are framed :- 
+
+* Terrible at keeping.
+* glow at amazon.
+* stop at times.
+* got at amazon.
+
+
+>on contrast with the popsitve reviews using the word "at" didn't provide us much information about  retailers.
+
+
 ### 8. Phrases net for words (of) in Un-Satisfied reviews. 
 
 ```{r echo = FALSE}
 include_graphics("images/onetwo(of).png")
 ```
+
+>The connector  words were mostly prefixed by "piece" , "couple" and "model" and suffixed by "junk" , "months" , "casio".
+
+>from the observed prefix and suffix words these senteces are framed :- 
+
+* Couple of months.
+* piece of junk.
+* model of Casio.
+
+> Customers were not at all satisfied by the watch.
+
+> "terms of amazon" states that customers were also disappointed by amazon's terms and conditions 
+
+
+
 
 ## 1.3
 
