@@ -59,11 +59,11 @@ graph2
 ```
 
 
+>In the plot 1.1 the points on the plot are colored by the linoleic variable,and in plot 1.2 linoleic variable was divided into four classes to color the plot.
 
-From  plot 1.1 where the points are colored by the Linoleic  we observe that due to the close
-saturation of color ,it is difficult to differentiate between appropriate information from the plot. plot 1.2 is similar plot but colored by the dircretized varialble of Linoleic which indeed present us with more information regarding the distribution of the data.
+>The only channel capacity feature in both plots is hues,it is difficult for human vision to distinguish between the hue variances of the points with a pre-attentive mechanism in plot 1.1, even with a attentive mechanism, it is not possible to differentiate between the points, and there could be a risk of wrong decision due to over plotting the points.
 
-
+>In plot 1.2 , human pre ateentive mechanism can identify the bright hue in plot ,despite of over plotting the points can be differentiated easily.
 
 
 ## 1.2
@@ -112,7 +112,17 @@ graph5 <-  ggplot(data = olive,
           geom_spoke()
 graph5
 ```
-Among the three plots plot 2.2 is hard to differentiate between the categories. due to the overlaping of data points and similar color for all classes.
+
+>George miller measured the levels of channel capacities in bits for each hues, shapes and lengths, channel capacities are measured in levels or  bits.
+
+>Using the george miller's experimentation, In plot 1.3 the points on the graph can be distinguished by different level of hues. Hence , 3.1 bits can be encoded for this aesthetic. .
+
+>According to channel capacities for *Size of squares* experiment , humans were able to classify only just 4 to 5 levels, this suggests that it is difficult for humans to identify sizes correctly , In plot 1.4 this can be clearly noticed, over plotting of points can be  clearly observed and the use of single hue for points can lead to wrong perception,2.2 bits can be encoded for this aesthetic.
+ 
+>Channel capacities for *Line geometry* experiment by pollack suggests, humans were able to classify only just 2.8 - 3.3 bits,this suggests that it is difficult for humans to identify orientation angle, In plot 1.5 this can be clearly noticed , 3 bits can be encoded in plot 1.5. 
+
+>Among the three plots ,plot 1.4 is hard to differentiate between the categories, as least number of bits can be encoded among other two plots.
+
 
 
 ## 1.3
@@ -152,14 +162,12 @@ graph7
 ```
 
 
+>In both plots, the only channel capacity feature is hues and brightness, it is difficult for human vision to distinguish between the hue variances of the points in plot 1.6 with a pre-attention mechanism, even with an attentive mechanism, it is not possible to differentiate between the points.Over plotting of points is observed for two categories of points ,this may lead to slow identification of decision boundaries.
 
 
-Decision boundaries can be easily defined in 1.7 to 1.6 since the 1.6 classified regions in a numerical value where it is difficult to interpret information from the graph compared to 3.2 where the regions are classified and color coded accordingly.
+>Boundaries between two  regions overlapping each other cannot be determined with pre attentive mechanism
 
-Both plots represent data in a similar way but  due to the pre-attentive mechanism,plot 1.7 makes things easier to identify on the data plot. 
-
-
-
+>Decision boundaries can be easily established in 1.7, as the boundary between two groups of elements of the same visual feature can be identified pre-attentively.
 
 ## 1.4
 
@@ -190,10 +198,13 @@ graph8
 ```
 
 
+>In the plot 1.8 , the points were categorized using three different features "color" ,"shape" , "size" using "linoleic" , "palmitic" and "palmitoleic" variables respectively. 
 
-The plot has over plotting which intern makes it difficult to see overlapping data points and it has too many classes to understand,due to overlaping issues perception of the data is confusing and this can lead wrong data interpretation.
+>Use of various channel capacites together is also known as *Multi-dimensional stimuli*.
 
-The three classes should be plotted on different plot in order to get complete analysis of the data.
+>*pollack/ficks* while researching on *multi-dimensional stimuli* , they found out that even when using multiple features ,maximum of 7.2 were encoded,adding multiple stimuli reduced the discernibility of individual feature.
+
+>Along with channel capacities there were few other issues found while using multiple aesthetics. The plot has over plotting which intern makes it difficult to see overlapping data points and it has too many classes to understand,due to this perception of data is confusing and this can lead wrong data interpretation.
 
 ## 1.5
 
@@ -211,13 +222,25 @@ graph9 <- ggplot(data = olive,
 graph9
 ``` 
 
-Because of the variation in the data points color spectrum and cluster forming, and clear visual patterns as we can interpret the plot to some degree,
-This approach is much better than plot 1.8 since we have less classes to grasp, region-based visual trends make this approach stronger
-Even this plot has some issue of over plotting. 
 
-from perspective of Treisman's theory our cognitive attention is limited by small amount of time ,where we can distinguish the change in color in similar sets of colors ,and accordingly we can easily identify the dark shaded region of the plot which has more color is accumulated.
+>In the plot 1.9 boundaries can be found up to a limited extent, we can observe an boundary between two regions at bottom as both regions have similar aesthetic and color difference can be observed.
+
+>According to treisman's theory of pre-attentive processing , conjuction of features require serial search between the maps.
+
+### *layers of observations using treisman's mapping :-*
+
+>We can observe the boundaries between three regions by three different hues.
+
+>In next layer we can distinguish shape of the points , two regions at bottom has higher number of tringles, the central cluster consists squares and triangles , but due to overplotting much specifications cannot be determined.
+
+>Few ircles were found as outliers on the plot.
+
 
 ## 1.6
+
+Use Plotly to create a pie chart that shows the proportions of oils coming from different
+Areas. Hide labels in this plot and keep only hover-on labels. Which problem is demonstrated
+by this graph?
  
 ```{r question 6, warning=FALSE}
 graph10 <- plot_ly(data = olive, 
@@ -231,23 +254,45 @@ graph10 <- plot_ly(data = olive,
 
 graph10
 ```
-As there are no labels and on the pie chart it is hard to understand the representation of the plot,As we cannot identify the angle differences with out labels this pie chart can be mislead portions of the chart,these plots are not ideal for static reports.
+>As there are no labels and on the pie chart it is hard to understand the representation of the plot,As we cannot identify the angle differences with out labels this pie chart can be mislead portions of the chart,these plots are not ideal for static reports.
+
+>Good principles of visualization suggests a plot should possess a proper legend ,a 100 percent scale and information.
+
 
 
 ## 1.7
+
+Create a 2d-density contour plot with Ggplot2 in which you show dependence of Linoleic vs
+Eicosenoic. Compare the graph to the scatterplot using the same variables and comment why
+this contour plot can be misleading.
 
 ```{r question7}
 graph11 <- ggplot(data = olive,
                   aes(x = linoleic,
                       y = eicosenoic)) +
-                  geom_point() +
                   geom_density_2d()+
                   labs(title ="1.11 | 2d density plot of lenoleic and eicosenoic")
 
+
+
+
+graph12 <- ggplot(data = olive,
+                  aes(x = linoleic,
+                      y = eicosenoic)) +
+                  geom_point() +
+       
+             labs(title ="1.12 | Scatter plot of lenoleic and eicosenoic")
 graph11
+graph12
 ```
 
-Contour lines does not describe particular relations of the plot points as we do not know the densities of the plot points ,when compared to the similar plot point we can see visual representation of regions divided into classes which gives more insight into the regional data than the 2d density plot.
+>Contour lines do not define the specific relationship of the data, this mapping technique is not useful to know the density of the variable.
+
+>If we look at the scatterplot, there are some points between 800 and 1000, but the 2d density reveals that the regions is very empty.
+
+
+>In the density plot, the plot did not define the outliers of the givn data, without the outlier information some key information might be missed.
+
 
 # Assignment 2
 
