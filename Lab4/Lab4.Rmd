@@ -13,6 +13,7 @@ knitr::opts_chunk$set(warning = FALSE)
 
 library(plotly)
 library(ggplot2)
+library(gridExtra)
 library(seriation)
 library(dplyr)
 library(lattice)
@@ -54,7 +55,7 @@ plot_ly(z = pae_scaled,
   layout(title = "Unsorted Heatmap")
 ```
 
-In the unsorted heatmap, seeing relations between variables or similarities between groups of cities is not possible. Basically, just outliers are identifiable by their color like that bread prize is very high in Manila and the number of vacation days is very low in Mexico City.
+In the unsorted heatmap, seeing relations between variables or similarities between groups of cities is not possible. Basically, just outliers are identifiable by their colour like that bread prize is very high in Manila and the number of vacation days is very low in Mexico City.
 
 ## 1.3
 
@@ -92,7 +93,9 @@ plot_ly(z = pae_cor,
 
 Both procedures result in the same ordering of the variables but the ordering of the cities varies. The heatmap using the euclidian distance is easier to interpret because cities that have high absolute values in most considered variables are located at the fringes while cities that are average in everything are located in the middle.
 
-Generally, low amounts of time one has to work for the individual consumer goods are of course interrelated and coincide with high wages, fewer working hours, many vacation days and high overall standards. The cities exhibiting this pattern are typically located in Western Europe and North America. The cities that are relatively average on all dimension tend to be in Eastern Europe. The opposite pattern with lower wages, less goods and services, fewer vacation days and longer working hours as well as higher amounts of time needed to buy certain goods despite lower absolute costs are geographically located in South America and especially Africa.
+It can be observed that the cities where the inhabitants typically have to work long to be able to buy bread, a BigMac, Rice or an iPhone have noneless lower absolute food prices. The reason why they have to work longer is because the absolute wages are also low in these cities. In these cities, residents also work typically longer hours and take less vacation. In short, prizes of consumer goods in required minutes of paid work are typically high in cities with low absolute levels of costs and low wages. The qualities of clothes and available goods and services is also typically lower in cities with low wages.
+
+The cities exhibiting low relative consumer good prices, high wages and an overall high living standard are typically located in Western Europe and North America. The cities that are relatively average on all dimensions tend to be in Eastern Europe. The opposite pattern with lower wages, less goods and services, fewer vacation days and longer working hours as well as higher amounts of time needed to buy certain goods despite lower absolute costs are geographically located in South America and especially Africa.
 
 ## 1.4
 
@@ -116,7 +119,9 @@ plot_ly(z = pae_TSP,
 criterion(d_euc_rows)
 ```
 
-With the TSP optimization, the advantage describe above of the euclidian distance based heatmap vanishes. The patterns are less clear and the typical geographic clustering cannot be seen as clearly anymore.
+In the heatmap using the traveling salesman problem as the optimisation algorithm, we can still see the overall high positive correlations between goods prices and working hours on one hand and the positive correlations between food costs, wages and standard of living variables. And the negative relation between these two groups of variables is still visible as well.
+
+But instead of the previous heatmap using the euclidian distance, more extreme cases are not located at both fringes but only at the top whereas the cities with overall average values are not in the middle anymore but more at the bottom. This results in a heatmap where the clusters are less easy to identify. Especially the previously apparent geographical grouping is now distorted.
 
 ## 1.5
 
@@ -127,8 +132,11 @@ specific to each cluster. Can these clusters be interpreted? Find the most promi
 and interpret it.
 
 ```{r parallelcoordinates}
+fit <- kmeans(prices_and_earnings, 3)
+prices_and_earnings$cluster <- fit$cluster
+
 plot_ly(type = "parcoords",
-        line = list(color = ~prices_and_earnings$Wage),
+        line = list(color = ~prices_and_earnings$cluster),
         dimensions = list(
           list(values = ~prices_and_earnings$iPhone,
                range = range(prices_and_earnings$iPhone),
@@ -164,7 +172,7 @@ plot_ly(type = "parcoords",
   layout(title = "Parallel Coordinates Plot")
 ```
 
-I would suggest three clusters, similar to the ones discussed for the heatmaps: cities with high living standards (high clothing index, few working hours, lots of vacation) and low time to work to be able to buy consumer goods. The second cluster is less extreme and is typically in the middle of the distributions or follows the trajectories of the first cluster but less extremely. The third one is the opposite of cluster 1. Unsurprisingly, they can largely identified by the mean net wage in each city. The higher the wages, the fewer one has to work for a given standard and given the relation between high wages and higher welfare expenses and living standards especially in Europe, these relations can largely be explained. This is higlited in the plot by assignig the colour of the line to the wage.
+I would suggest three clusters, similar to the ones discussed for the heatmaps: cities with high living standards (high clothing index, few working hours, lots of vacation) and low time to work to be able to buy consumer goods. The second cluster is less extreme and is typically in the middle of the distributions or follows the trajectories of the first cluster but less extremely. The third one is the opposite of cluster 1. Unsurprisingly, they can largely identified by the mean net wage in each city. The higher the wages, the fewer one has to work for a given standard and given the relation between high wages and higher welfare expenses and living standards especially in Europe, these relations can largely be explained.
 
 ## 1.6
  
@@ -196,7 +204,7 @@ In some Middle Eastern cities, we can observe average values in most variables b
 
 Japanese and Oceanic cities typically belong to the first cluster from the heatmap together with Western Europe and Noth America.
 
-An interesting outlier is Hong Kong with very long working hours, high food costs but low values on most other variables. This probably relates to the special status of Hong Kong.
+An interesting case is Ljublana with overall very low prices compared to its geographical neighbours but a relatively high price for rice.
 
 ## 1.7
 
@@ -207,8 +215,6 @@ etc.)
 In my mind, most clusters, their geographic distribution and outlier analysis was already feasible with the heatmap using euclidian distance and HC. At the same time, the heatmaps are most efficient in their use of space and relatively simple to understand. The parallel coordinate plot has the advantage of showing the amount of variation in absolute values in the respective variables. And since it does not need scaling, values are more intuitive in that plot. The radar plots are suited for analysis of each individual case but the easy to identify large patterns is lost. This method is also very ineffiecient in the use of space.
 
 
-
-
 # Assignment 2
 
 ```{r , warning=FALSE}
@@ -216,10 +222,11 @@ adult_data <- read.csv("adult.csv",header = FALSE)
 names(adult_data) <- c("age","workclass","fnlwgt","education","education_num","marital_status","occupation","relationship","race","sex","capital_gain","capital_loss","hours_per_week","native_country","income_level")
 ```
 
-## Question 1 
+## 2.1
 
 Use ggplot2 to make a scatter plot of Hours per Week versus age where observations are
 colored by Income level. Why it is problematic to analyze this plot? Make a trellis plot of the same kind where you condition on Income Level. What new conclusions can you make here? 
+
 ```{r question 1, warning=FALSE}
 plot1 <- ggplot(data  = adult_data,aes(x= hours_per_week , y = age , color =income_level))+
    labs(title = "Plot 2.1 Scatterplot of weekly Hours by Age",
@@ -227,55 +234,48 @@ plot1 <- ggplot(data  = adult_data,aes(x= hours_per_week , y = age , color =inco
        y = "age",
        colour = "Income Level")+
   geom_point()
-  
 plot1
 
 plot2 <- qplot(hours_per_week,age, data=adult_data, facets=~income_level)+
   labs(title = "Plot 2.2 Trellis plot of weekly Hours by Age separated by Income Level",
        x = "weekly work hours",
        y = "age")
-
 plot2
-
-
 ```
 
 
-As we plotted both income level ranges in plot 2.1 we observe over plotting due in the plot,but we can interpret that high number of people earning less than or equal to fifty thousand is higher.
+As we plotted both income level ranges in plot 2.1 we observe overplotting in the plot, but we can interpret that people earning less or equal to fifty thousand are typically younger.
 
-In plot 2.2 using trellis plot we have divided the scateer plot into two plots according to their income levels,in this plot using perception we can depict that peaople earning less than fifty thousand is higher,people  weekly hours  mostly lies between zero and 75,
+In plot 2.2, using a trellis plot we have divided the scatter plot into two plots according to their income levels. In this plot we can depict that people earning less than fifty thousand is higher, peoples working weekly hours  mostly lie between zero and 75,
 
-Income level is higher than fifty thousand in population working 25 to 55 hours weekly.
+Income level is higher than fifty thousand in the population working 25 to 55 hours weekly.
 
 
-## Question 2
+## 2.2
 
 Use ggplot2 to create a density plot of age grouped by the Income level. Create a trellis plot
 of the same kind where you condition on Marital Status. Analyze these two plots and make
 conclusions.
+
 ```{r question 2 , warning =FALSE}
 plot3 <- 
   ggplot(adult_data , aes(age,fill = income_level))+
   geom_density(alpha = 0.50)+
   labs(title  = "2.3 density plot of Ages grouped by income level")
-
 plot3
-
 
 plot4 <-  ggplot(adult_data , aes(age,fill = adult_data$income_level))+
   geom_density(alpha = 0.50)+
   facet_wrap(~adult_data$`marital_status`)+
   labs(title = "2.4 Trellis plot of income and age whith marital status")
-  
 plot4
 ```
 
-from plot 2.3 we can interpret that population earning less than fifty thousand are higher from ages 10 to 25 gradual decrease was observed.
+From plot 2.3 we can interpret that the population earning less than fifty thousand are stronger represented in the age from 10 to 25 and afterwards gradually decreased.
 
-Population with income level higher were higher number between ages thirties to late forties there was a sharp descent was observed.
+Population with a higher income are higher in numbers between the age of thirty to late forties there was a sharp descent was observed.
 
 In plot 2.4 it is clearly observed that almost all the groups have similar densities on income levels but there were spikes in densities were found in never-married and married-spouse-absent.
-
 
 The percentage of population who are never married earned more in their early twenties.
 
@@ -284,8 +284,7 @@ Married-AF-spouses were more in from early twenties to early fifties.
 Widowed population in  the both income groups are similar and are in more percentage from the ages 50 to 75.
 
 
-
-## Question 3 
+## 2.3
 
 Filter out all observations having Capital loss equal to zero. For the remaining data, use Plotly
 to create a 3D-scatter plot of Education-num vs Age vs Captial Loss. Why is it difficult to
@@ -293,16 +292,17 @@ analyze this plot? Create a trellis plot with 6 panels in ggplot2 in which each 
 raster-type 2d-density plot of Capital Loss versus Education-num conditioned on values of
 Age (use cut_number() ) . Analyze this plot.
 
-```{r question 3 , warninig = FALSE}
+```{r question 3}
 
-CL_data <-  filter(adult_data ,capital_loss > 0)
+CL_data <-  filter(adult_data, capital_loss > 0)
 
-plot5 <-  plot_ly(CL_data,x = ~education_num  , y = ~age,z = ~capital_loss)%>%
-          add_markers()%>%
-          labs(title = "2.5 3D scatter plot Education number vs age vs capital loss ")
-
- 
-
+plot5 <-  plot_ly(CL_data,
+                  x = ~education_num, 
+                  y = ~age,
+                  z = ~capital_loss,
+                  size = .5) %>% 
+          add_markers() %>%
+          layout(title = "3D scatter plot Education number vs age vs capital loss")
 plot5
 
 
@@ -326,23 +326,14 @@ The information presented by 2.6 raster plot   to us is also very minimal.
 
 As discussed in 2.5 plot the high density of capitol loss was found majorly from 1000 to 2500 range.
 
-
-
 Education number and capitol loss was higher from ages late teens to early sixties.
-
 
 highest age density was found in 53.5 to 65.7 as observed in pane 4.
 
 There was very low density observed in from  from the ages 77.8 to 90 is. 
 
 
-
-
-
-
-
-
-## Question 4
+## 2.4
 
 Make a trellis plot containing 4 panels where each panel should show a scatter plot of Capital
 Loss versus Education-num conditioned on the values of Age by a) using cut_number() b)
@@ -354,40 +345,45 @@ plot7 <- ggplot(CL_data) +
   aes(x =  capital_loss,
       y = education_num) +
   geom_point() +
-  facet_wrap(~cut_number(CL_data$age, 10)) +
-  labs(title = "2.7 Scatter Plots of Education and Capital Loss by Age Groups",
+  facet_wrap(~cut_number(CL_data$age, 4)) +
+  labs(title = "Education and Capital Loss by Age",
        x = "capital loss",
        y = "education number")
-plot7
-
-shin <- equal.count(CL_data$age,number = 10 ,overlap = 0.1)
 
 
-plot8 <- ggplot(CL_data) +
-          aes(x = capital_loss,
-              y = education_num) +
-          geom_point() +
-          facet_wrap(shin)+
-          labs(title = "2.8  Scatter Plots of Education and Capital Loss by Age Groups",
-          x = "capital loss",
-          y = "Education num ")
-  
-plot8
+shin <- equal.count(CL_data$age, number = 4, overlap = 0.1)
+L <- matrix(unlist(levels(shin)), ncol=2, byrow = T)
+L1 <- data.frame(Lower = L[,1],
+                 Upper = L[,2], 
+                 Interval = factor(1:nrow(L)))
+
+index <- c()
+Class <- c()
+for(i in 1:nrow(L)){
+  Cl <- paste("[", L1$Lower[i], ",", L1$Upper[i], "]", sep="")
+  ind <- which(CL_data$age >= L1$Lower[i] & CL_data$age <= L1$Upper[i])
+  index <- c(index, ind)
+  Class <- c(Class, rep(Cl, length(ind)))
+}
+
+CL_data2 <- CL_data[index, ]
+CL_data2$Class <- as.factor(Class)
+
+plot8 <- ggplot(CL_data2) +
+  aes(x =  capital_loss,
+      y = education_num) +
+  geom_point() +
+  facet_wrap(~Class) +
+  labs(title = "...with Overlap",
+       x = "capital loss",
+       y = "education number")
+
+grid.arrange(plot7, plot8, nrow = 1)
 ```
 
-
-from plot 2.7 we observed Education number and education number  for the population mostly lie between 8,16 and 1000 to 2500  especially from the age of  26 and above.
-
-
- 
-The plot 2.8  with intervals of 10& shingles present us with  more insight into data as we get more detailed data points for every age in the data set.
-
-There is a problem of over plotting observed.
-
-2.7 has advantage of less over plotting and more insight into different  age groups.
-
+When discretising a continuous variable for visualisations, the arbitrariness of the selection of the cut-points can create boundary effects that become visible in the plots. When interpreting these plots, one would pick up on them although they are just an artefact. In this case though, using shingles has not much of a different look of the graphs.
 
 # Contributions
 
-The main responsibility for Assignment 1 obliged to Malte Grönemann while for Assignment 2 it was the responsibility of konda varshith.
+The main responsibility for Assignment 1 obliged to Malte Grönemann while for Assignment 2 it was the responsibility of Konda Varshith.
 

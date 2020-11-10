@@ -98,17 +98,15 @@ include_graphics("un-satisfied.png")
 ```
 
 
->After removing stopwords and punctuation we created and data frame to get know the frequency of the words in both the reviews and created an wordcloud.
+After removing stopwords and punctuation we created and data frame to get know the frequency of the words in both the reviews and created an wordcloud.
 
->from the Word cloud it is observed that many customers frequecy of the word "watch " was high. 
+from the Word cloud it is observed that many customers frequecy of the word "watch " was high. 
 
->In satisfied customer reviews the words "great" , "one" , "time" were also occured in high number.
+In satisfied customer reviews the words "great" , "one" , "time" were also occured in high number.
 
->In un satisfied customer reviews the words "amazon" , "casio","time" occured in high number as well.
+In un satisfied customer reviews the words "amazon" , "casio","time" occured in high number as well.
 
->Remaining words appeared negligible times.
-
-
+Remaining words appeared negligible times.
 
 ## 1.2
 
@@ -119,20 +117,20 @@ include_graphics("un-satisfied.png")
 include_graphics("images/five(am, is, are, was, were).png")
 ```
 
->By specifying connecting words in phrase-nets software we obtained a phrase net  as displayed above.
+By specifying connecting words in phrase-nets software we obtained a phrase net  as displayed above.
 
->The connector  words were mostly prefixed by "Watch" , "i" and "it" and suffixed by "replacing" , "durable" , "comfortable" , "looking" ,"good".
+The connector  words were mostly prefixed by "Watch" , "i" and "it" and suffixed by "replacing" , "durable" , "comfortable" , "looking" ,"good".
 
->from the observed prefix and suffix words these senteces are framed :- 
+from the observed prefix and suffix words these senteces are framed :- 
 
 * I was looking.
 * It is comfortable.
 * Watch is unbeatable.
 * I am glad.
 
-> "It" and "watch" had few common words such as "great" , "just", "exact".
+"It" and "watch" had few common words such as "great" , "just", "exact".
 
-> Most words and sentences were moderately positive.
+Most words and sentences were moderately positive.
 
 ### 2. Phrases net for words (a , the ) in Satisfied reviews. 
 
@@ -140,21 +138,20 @@ include_graphics("images/five(am, is, are, was, were).png")
 include_graphics("images/five(a,the).png")
 ```
 
->The connector  words were mostly prefixed by "Change" , "use" and "like" ,"got" and suffixed by "replacing" , "way" , "replacing" , "digital" ,"battery".
+The connector  words were mostly prefixed by "Change" , "use" and "like" ,"got" and suffixed by "replacing" , "way" , "replacing" , "digital" ,"battery".
 
->from the observed prefix and suffix words these senteces are framed :- 
+From the observed prefix and suffix words these senteces are framed:
 
 * Change the battery.
 * Use a digital.
 * Got a new one.
 * Replaced the battery.
 
-> "Use" and "Like" , "change"  has  word "battery".
+"Use" and "Like" , "change"  has  word "battery".
 
-> "Battery" found  out to be the word has high number of occurences in phrase nets.
+"Battery" found  out to be the word has high number of occurences in phrase nets.
 
-> Many customers are facing issue with the battery of the watch.
-
+Many customers are facing issue with the battery of the watch.
 
 
 ### 3. Phrases net for words (at) in Satisfied reviews.
@@ -163,9 +160,9 @@ include_graphics("images/five(a,the).png")
 include_graphics("images/five(at).png")
 ```
 
->The connector  words were mostly prefixed by "one" , "watch" and "time" and suffixed by "costco" , "night" , "walmart".
+The connector  words were mostly prefixed by "one" , "watch" and "time" and suffixed by "costco" , "night" , "walmart".
 
->from the observed prefix and suffix words these senteces are framed :- 
+From the observed prefix and suffix words these senteces are framed :
 
 * One at costco.
 * Watch at walmart.
@@ -173,9 +170,9 @@ include_graphics("images/five(at).png")
 * Time at home.
 * online at amazon.
 
-> with the stop word "at" , customers specified the retailer of their purchase.
+With the stop word "at", customers specified the retailer of their purchase.
 
-> customers purchased their watches mostly from Costco and Amazon.
+Customers purchased their watches mostly from Costco and Amazon.
 
 ### 4. Phrases net for words (of) in Satisfied reviews.
 
@@ -184,9 +181,9 @@ include_graphics("images/five(of).png")
 ```
 
 
-> From the connector word "of" the prefix and suffix words are more scattered into nuclear sentences, but the word "Years" id observed to have high frequency.
+From the connector word "of" the prefix and suffix words are more scattered into nuclear sentences, but the word "Years" id observed to have high frequency.
 
->from the observed connection these senteces are framed :-
+From the observed connection these senteces are framed:
 
 * Weeks of use.
 * Track of time.
@@ -200,15 +197,15 @@ include_graphics("images/five(of).png")
 include_graphics("images/onetwo(am, is, are, was, were).png")
 ```
 
->The connector  words were mostly prefixed by "watch" , "I" and suffixed by "great" , "hot" , "disappointed" , "digital" ,"battery".
+The connector  words were mostly prefixed by "watch" , "I" and suffixed by "great" , "hot" , "disappointed" , "digital" ,"battery".
 
->from the observed prefix and suffix words these senteces are framed :- 
+From the observed prefix and suffix words these senteces are framed:
 
 * watch is defective.
 * I am disappointed
 * Watch was fantastic.
 
-> "Watch" found  out to be most the concentrated word in this phrase net.
+"Watch" found  out to be most the concentrated word in this phrase net.
 
 ### 6. Phrases net for words (at , the) in Un-Satisfied reviews. 
 
@@ -216,16 +213,16 @@ include_graphics("images/onetwo(am, is, are, was, were).png")
 include_graphics("images/onetwo(a, the).png")
 ```
 
->The connector  words were mostly prefixed by "Like , "got" ,"watch" and suffixed by "battery" , "returned".
+The connector  words were mostly prefixed by "Like , "got" ,"watch" and suffixed by "battery" , "returned".
 
->from the observed prefix and suffix words these senteces are framed :- 
+From the observed prefix and suffix words these senteces are framed:
 
 * Like the watch.
 * Replace the battery.
 
-> "Battery" found  out to be most the concentrated word in this phrase net.
+"Battery" found  out to be most the concentrated word in this phrase net.
 
-> Similar to satisfied customers , negative reviewa also concludes both group of customers are facing issues with the battery of the watch.
+Similar to satisfied customers , negative reviewa also concludes both group of customers are facing issues with the battery of the watch.
 
 ### 7. Phrases net for words (at) in Un-Satisfied reviews. 
 
@@ -233,17 +230,16 @@ include_graphics("images/onetwo(a, the).png")
 include_graphics("images/onetwo(at).png")
 ```
 
->The connector  words were mostly prefixed by "lousy" , "glow" and "stop" and suffixed by "keeping" , "night".
+The connector  words were mostly prefixed by "lousy" , "glow" and "stop" and suffixed by "keeping" , "night".
 
->from the observed prefix and suffix words these senteces are framed :- 
+From the observed prefix and suffix words these senteces are framed:
 
 * Terrible at keeping.
 * glow at amazon.
 * stop at times.
 * got at amazon.
 
-
->on contrast with the popsitve reviews using the word "at" didn't provide us much information about  retailers.
+In contrast to the positive reviews using the word "at" didn't provide us much information about  retailers.
 
 
 ### 8. Phrases net for words (of) in Un-Satisfied reviews. 
@@ -252,19 +248,17 @@ include_graphics("images/onetwo(at).png")
 include_graphics("images/onetwo(of).png")
 ```
 
->The connector  words were mostly prefixed by "piece" , "couple" and "model" and suffixed by "junk" , "months" , "casio".
+The connector  words were mostly prefixed by "piece" , "couple" and "model" and suffixed by "junk", "months" , "casio".
 
->from the observed prefix and suffix words these senteces are framed :- 
+From the observed prefix and suffix words these senteces are framed:
 
 * Couple of months.
 * piece of junk.
 * model of Casio.
 
-> Customers were not at all satisfied by the watch.
+Customers were not at all satisfied by the watch.
 
-> "terms of amazon" states that customers were also disappointed by amazon's terms and conditions 
-
-
+"Terms of amazon" states that customers were also disappointed by amazon's terms and conditions.
 
 
 ## 1.3
@@ -356,13 +350,19 @@ describe what additional relationships in the data can be found by using it. Rep
 interaction operators were used in this step.
 
 ```{r 2_2}
+sca2_2 <- plot_ly(data = olive_shared,
+        x = ~linoleic,
+        y = ~eicosenoic,
+        type = "scatter")
+sca2_2 <- sca2_2 %>% layout(title = "Scatterplot of Linoleic and Eicosenoic")
+
 bar2_2 <- plot_ly(data = olive_shared,
                   x = ~Region) %>%
   add_histogram() %>%
   layout(barmode = "overlay",
          title = "Region of Origin")
 
-libs <- subplot(sca2_1, bar2_2) %>%
+libs <- subplot(sca2_2, bar2_2) %>%
   highlight(on = "plotly_select",
             persistent = TRUE,
             dynamic = TRUE,
@@ -390,11 +390,17 @@ outliers grouped in some way? Use brushing to demonstrate your findings.
 
 ```{r 2_3}
 sca2_3 <- plot_ly(data = olive_shared,
+        x = ~linoleic,
+        y = ~eicosenoic,
+        type = "scatter")
+sca2_3 <- sca2_3 %>% layout(title = "Scatterplot of Linoleic and Eicosenoic")
+
+sca2_4 <- plot_ly(data = olive_shared,
                   x = ~linoleic,
                   y = ~arachidic,
                   type = "scatter")
 
-subplot(sca2_1, sca2_3, 
+subplot(sca2_3, sca2_4, 
         titleX = TRUE, shareX = TRUE, titleY = TRUE) %>%
   highlight(on = "plotly_select",
             persistent = TRUE,
@@ -448,7 +454,7 @@ for (i in 5:10){
                          args = list("z", list(olive[[i]])),
                          label = paste("Z:", colnames(olive)[i]))}
 
-sca2_4 <- plot_ly(olive_shared, 
+sca2_5 <- plot_ly(olive_shared, 
                   x = ~palmitic, 
                   y = ~palmitoleic,
                   z = ~stearic,
@@ -459,6 +465,13 @@ sca2_4 <- plot_ly(olive_shared,
       list(y = 0.9, buttons = Button1),
       list(y = 0.6, buttons = Button2),
       list(y = 0.3, buttons = Button3)))
+
+# bar chart
+bar2_4 <- plot_ly(data = olive_shared,
+                  x = ~Region) %>%
+  add_histogram() %>%
+  layout(barmode = "overlay",
+         title = "Region of Origin")
 
 # combining
 browsable(div(
@@ -477,7 +490,7 @@ browsable(div(
                   opacityDim = I(1)) %>%
         hide_legend(), 
       style = "width: 50%"),
-  div(bar2_2 %>% 
+  div(bar2_4 %>% 
         highlight(on = "plotly_select",
                   persistent = TRUE,
                   dynamic = TRUE,
