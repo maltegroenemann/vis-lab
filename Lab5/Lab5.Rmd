@@ -17,6 +17,7 @@ library(wordcloud2)
 library(corpus)
 library(tm)
 library(knitr)
+library(rmarkdown)
 ```
 
 # Assignment 1
@@ -350,13 +351,14 @@ describe what additional relationships in the data can be found by using it. Rep
 interaction operators were used in this step.
 
 ```{r 2_2}
-sca2_2 <- plot_ly(data = olive_shared,
+olive_shared1 <- SharedData$new(olive)
+sca2_2 <- plot_ly(data = olive_shared1,
         x = ~linoleic,
         y = ~eicosenoic,
         type = "scatter")
 sca2_2 <- sca2_2 %>% layout(title = "Scatterplot of Linoleic and Eicosenoic")
 
-bar2_2 <- plot_ly(data = olive_shared,
+bar2_2 <- plot_ly(data = olive_shared1,
                   x = ~Region) %>%
   add_histogram() %>%
   layout(barmode = "overlay",
@@ -372,7 +374,7 @@ libs <- subplot(sca2_2, bar2_2) %>%
          xaxis = list(title = "linoleic"),
          yaxis = list(title = "eicosenoic"))
 
-slider_stearic <- filter_slider("stearic", "stearic", olive_shared, ~stearic)
+slider_stearic <- filter_slider("stearic", "stearic", olive_shared1, ~stearic)
 
 browsable(div(
   style = "display: flex; flex-wrap: wrap; justify-content: center",
@@ -389,14 +391,15 @@ Which outliers in (arachidic, linolenic) are also outliers in (eicosenoic, linol
 outliers grouped in some way? Use brushing to demonstrate your findings.
 
 ```{r 2_3}
-sca2_3 <- plot_ly(data = olive_shared,
+olive_shared2 <- SharedData$new(olive)
+sca2_3 <- plot_ly(data = olive_shared2,
         x = ~linoleic,
         y = ~eicosenoic,
         type = "scatter")
 sca2_3 <- sca2_3 %>% layout(title = "Scatterplot of Linoleic and Eicosenoic")
 
-sca2_4 <- plot_ly(data = olive_shared,
-                  x = ~linoleic,
+sca2_4 <- plot_ly(data = olive_shared2,
+                  x = ~linolenic,
                   y = ~arachidic,
                   type = "scatter")
 
@@ -413,7 +416,7 @@ subplot(sca2_3, sca2_4,
          yaxis2 = list(title = "arachidic"))
 ```
 
-All the oils with low levels of arachidic also have low levels of eicosenoic and are from Sardinia.
+The oils with the very low levels of eicosenoic can take all values of linoleic, linolenic and arachidic. They are therefore not outliers in the second scatter plot. However, the range of values in arachidic, more decreases, or more precisely, the lower bound rises, with the levels of eicosenoic.
 
 ## 2.4
 
@@ -430,11 +433,14 @@ Region corresponds to one cluster.
 ```{r 2_4}
 # parallel coordinate plot
 parco <- ggplotly(ggparcoord(olive, columns = c(3:10)))
-parco <- plotly_data(parco) #%>% group_by(.ID)
-parco <- SharedData$new(parco)
-parco <- plot_ly(parco, x=~variable, y=~value)%>%
-  add_lines(line=list(width=0.3))%>%
-  add_markers(marker=list(size=0.3),
+parco <- plotly_data(parco) %>% group_by(.ID)
+parco <- SharedData$new(parco, ~.ID, group = "olive")
+parco <- plot_ly(parco, 
+                 x = ~variable, 
+                 y = ~value) %>%
+  add_lines(line = list(width = 0.3)) %>%
+  add_markers(marker = list(size = 0.3),
+              text=~.ID,
               hoverinfo="text")
 
 # linked 3D scatter
@@ -454,7 +460,11 @@ for (i in 5:10){
                          args = list("z", list(olive[[i]])),
                          label = paste("Z:", colnames(olive)[i]))}
 
-sca2_5 <- plot_ly(olive_shared, 
+olive2 <- olive
+olive2$.ID <- 1:nrow(olive2)
+olive2 <- SharedData$new(olive2, ~.ID, group = "olive")
+
+sca2_5 <- plot_ly(olive2, 
                   x = ~palmitic, 
                   y = ~palmitoleic,
                   z = ~stearic,
@@ -467,13 +477,14 @@ sca2_5 <- plot_ly(olive_shared,
       list(y = 0.3, buttons = Button3)))
 
 # bar chart
-bar2_4 <- plot_ly(data = olive_shared,
+bar2_4 <- plot_ly(data = olive2,
                   x = ~Region) %>%
   add_histogram() %>%
   layout(barmode = "overlay",
          title = "Region of Origin")
 
 # combining
+
 browsable(div(
   style = "display: flex; flex-wrap: wrap; justify-content: center",
   div(parco %>% 
@@ -483,7 +494,7 @@ browsable(div(
                   opacityDim = I(1)) %>%
         hide_legend(), 
       style = "width: 100%"),
-  div(sca2_4 %>% 
+  div(sca2_5 %>% 
         highlight(on = "plotly_select",
                   persistent = TRUE,
                   dynamic = TRUE,
@@ -499,6 +510,8 @@ browsable(div(
       style = "width: 50%")))
 ```
 
+Our three selected variables are eicosenoic, oleic, and linolenic. We already know that we can perfectly separate zhe oils from the northern region from the other two regions with eicosenoic since Sardinia and the South have extremely low levels of this acid. A relatively good separator between Sardinia and the South is oleic with Sardinia usually having higher levels of it. The same holds true for linolenic where the southern oils always have higher values than the Sardinian ones.
+
 ## 2.5
 
 Think about which interaction operators are available in step 4 and what interaction
@@ -508,9 +521,7 @@ in the previous steps, try to suggest a strategy (or, maybe, several strategies)
 use information about the level of acids to discover which regions different oils comes
 from.
 
-Unfortunately, the connectivity between the parallel coordinate plot and the other plots is not given and I was not able to figure out why. I tried different combination methods with both browsable() and subplot() and created the plot both with ggplotly() as well as in plotly directly.
-
-In the 3D scatter plot, the selection buttons are a selection operator that is applied to the data value space. The brushing (as a combination of selection and connection operators) is applied to the attribute space, namely the color. The navigation operator (zooming, rotation of the 3D scatter) operates on the screen space. We could improve the plot by enabling changing the order of variables in the parallel coordinate plot. This would be a reconfiguring operator applied to the visualization structure space.
+In the 3D scatter plot, the selection buttons are a selection operator that is applied to the data value space. The brushing (as a combination of selection and connection operators) is applied to the attribute space, namely the colour. The navigation operator (zooming, rotation of the 3D scatter) operates on the screen space. We could improve the plot by enabling changing the order of variables in the parallel coordinate plot. This would be a reconfiguring operator applied to the visualization structure space.
 
 # Contributions
 
@@ -523,11 +534,5 @@ The brushed images the interpretations in Assignment 2 are based on are appended
 ```{r appendix}
 include_graphics("2_2.png")
 include_graphics("2_3.png")
+include_graphics("2_4.png")
 ```
-
-
-
-
-# Contributions
-
-The main responsibility for Assignment 1 obliged to Varshith Konda while for Assignment 2 it was the responsibility of Malte Grönemann.
