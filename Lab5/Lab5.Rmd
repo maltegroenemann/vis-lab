@@ -335,9 +335,9 @@ observations to find out the exact values of eicosenoic for these observations.
 
 ```{r 2_1}
 sca2_1 <- plot_ly(data = olive_shared,
-        x = ~linoleic,
-        y = ~eicosenoic,
-        type = "scatter")
+                  x = ~linoleic,
+                  y = ~eicosenoic,
+                  type = "scatter")
 sca2_1 %>% layout(title = "Scatterplot of Linoleic and Eicosenoic")
 ```
 
@@ -353,9 +353,9 @@ interaction operators were used in this step.
 ```{r 2_2}
 olive_shared1 <- SharedData$new(olive)
 sca2_2 <- plot_ly(data = olive_shared1,
-        x = ~linoleic,
-        y = ~eicosenoic,
-        type = "scatter")
+                  x = ~linoleic,
+                  y = ~eicosenoic,
+                  type = "scatter")
 sca2_2 <- sca2_2 %>% layout(title = "Scatterplot of Linoleic and Eicosenoic")
 
 bar2_2 <- plot_ly(data = olive_shared1,
@@ -380,6 +380,9 @@ browsable(div(
   style = "display: flex; flex-wrap: wrap; justify-content: center",
   div(libs, style = "width: 100%"),
   div(slider_stearic, style = "width: 80%")))
+
+# static brushed image
+include_graphics("2_2.png")
 ```
 
 The oils with very low levels of eicosenoic are exclusively the oils from the Southern region and Sardinia. All oils from the South have stearic levels between 197 and 273. Oils from the North and Sardinia have the whole range of linoleic and stearic. The used operators are filtering operators (in form of the stearic slider), and we ussed brushing which is a combination of the selection and connection operators.
@@ -393,10 +396,9 @@ outliers grouped in some way? Use brushing to demonstrate your findings.
 ```{r 2_3}
 olive_shared2 <- SharedData$new(olive)
 sca2_3 <- plot_ly(data = olive_shared2,
-        x = ~linoleic,
-        y = ~eicosenoic,
-        type = "scatter")
-sca2_3 <- sca2_3 %>% layout(title = "Scatterplot of Linoleic and Eicosenoic")
+                  x = ~linoleic,
+                  y = ~eicosenoic,
+                  type = "scatter")
 
 sca2_4 <- plot_ly(data = olive_shared2,
                   x = ~linolenic,
@@ -410,13 +412,16 @@ subplot(sca2_3, sca2_4,
             dynamic = TRUE,
             opacityDim = I(1)) %>%
   hide_legend() %>%
-  layout(title = "Eicosenoic and Arachidic by Linoleic",
+  layout(title = "Eicosenoic by Linoleic and Arachidic by Linolenic",
          xaxis = list(title = "linoleic"),
          yaxis = list(title = "eicosenoic"),
          yaxis2 = list(title = "arachidic"))
+
+# static brushed image
+include_graphics("2_3.png")
 ```
 
-The oils with the very low levels of eicosenoic can take all values of linoleic, linolenic and arachidic. They are therefore not outliers in the second scatter plot. However, the range of values in arachidic, more decreases, or more precisely, the lower bound rises, with the levels of eicosenoic.
+The oils with the very low levels of arachidic have all very low levels of eicesenoic. The higher the levels of eicosenoic, the higher the lower bound of arachidic.
 
 ## 2.4
 
@@ -508,9 +513,12 @@ browsable(div(
                   opacityDim = I(1)) %>%
         hide_legend(), 
       style = "width: 50%")))
+
+# static brushed image
+include_graphics("2_4.png")
 ```
 
-Our three selected variables are eicosenoic, oleic, and linolenic. We already know that we can perfectly separate zhe oils from the northern region from the other two regions with eicosenoic since Sardinia and the South have extremely low levels of this acid. A relatively good separator between Sardinia and the South is oleic with Sardinia usually having higher levels of it. The same holds true for linolenic where the southern oils always have higher values than the Sardinian ones.
+Our three selected variables are eicosenoic, oleic, and linolenic. We already know that we can perfectly separate the oils from the northern region from the other two regions with eicosenoic since Sardinia and the South have extremely low levels of this acid. A relatively good separator between Sardinia and the South is oleic with Sardinia usually having higher levels of it. The same holds true for linolenic where the southern oils always have higher values than the Sardinian ones.
 
 ## 2.5
 
